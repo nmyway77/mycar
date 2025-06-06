@@ -1,1371 +1,194 @@
  <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <base target="_blank">
   <meta charset="UTF-8">
-  <title>MYcar.KR</title>
+  <title>MYWAY - 검색포털 & 갤러리</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {margin:0; padding:0; background:#fff; font-family:'Segoe UI','맑은 고딕','NanumGothic',Arial,sans-serif;}
-    .search-bar-fixed {position:sticky;top:0;background:#fff;z-index:100;box-shadow:0 2px 14px 0 rgba(30,32,80,0.06);width:100%;display:flex;justify-content:center;align-items:center;padding:24px 0 12px 0;}
-    .search-bar-center {width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;margin:0 8px;}
-    .snark-form-row {display:flex;align-items:center;width:100%;gap:0;}
-    .search-container {display:flex;flex:1 1 400px;min-width:120px;max-width:100%;background:#fff;border:2.5px solid #3C3C8C;border-right:none;border-radius:36px 0 0 36px;height:48px;overflow:hidden;box-sizing:border-box;}
-    .search-select {border:none;background:transparent;font-size:1rem;color:#222;padding:0 10px 0 12px;min-width:100px;max-width:180px;outline:none;appearance:none;height:100%;flex-shrink:0;cursor:pointer;}
-    .search-input {flex:1;border:none;background:transparent;font-size:1rem;color:#333;padding:0 10px;outline:none;height:100%;font-family:inherit;box-sizing:border-box;}
-    .search-btn {border:2.5px solid #3C3C8C;border-left:none;border-radius:0 36px 36px 0;background:#3C3C8C;color:#fff;font-size:1rem;font-weight:bold;cursor:pointer;height:48px;min-width:90px;padding:0 14px;display:flex;align-items:center;justify-content:center;transition:background 0.2s;}
-    .search-btn:hover {background:#232356;}
-    .screen-nav {display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;overflow-x:auto;gap:10px;margin:20px auto 0 auto;padding:0 4px;background:#fff;}
-    .screen-btn {background:none;color:#232356;border:none;border-radius:0;padding:0 7px;font-size:0.98rem;font-weight:bold;margin:0;cursor:pointer;box-shadow:none;transition:color 0.18s;min-width:0;min-height:0;line-height:1.5;outline:none;text-align:center;}
-    .screen-btn.active, .screen-btn:hover {color:#05113f;background:none;box-shadow:none;text-decoration:underline;}
-    @media (max-width: 600px) {.screen-nav { gap:4px; padding:0 1vw;} .screen-btn {font-size:0.9rem; padding:0 3px;}}
-    @media (max-width: 420px) {.screen-nav { gap:2px; } .screen-btn {font-size:0.8rem; padding:0 1px;}}
-    .screen-section-label {margin:6px 0 2px 0;padding:0;font-size:0.55rem;color:#444;font-weight:normal;border:none;background:none;}
-    .screen-content {width:100vw;min-height:220px;background:#fff;border-radius:0;box-shadow:none;margin:22px 0 44px 0;padding:28px 3vw 38px 3vw;font-size:1.13rem;color:#232356;text-align:left;transition:background 0.18s;box-sizing:border-box;}
-    .screen-block {display:none;width:100%;max-width:100vw;min-height:160px;}
-    .screen-block.active {display:block;}
-    /* ==== 카드 스타일 ==== */
-    .img-grid {display:grid;grid-template-columns:repeat(6, 1fr);gap:28px 12px;max-width:1050px;margin:40px auto 30px auto;padding:0 6px;background:#fff;}
-    .img-cell {background:#fff;border-radius:0;display:flex;flex-direction:column;align-items:center;padding:0;box-shadow:none;}
-    .img-frame {width:150px;height:97px;background:#fff;display:flex;align-items:center;justify-content:center;border-radius:0;overflow:hidden;border:none;box-sizing:border-box;margin-bottom:0;}
-    .img-frame img {width:98%;height:98%;object-fit:cover;display:block;margin:auto;background:#fff;}
-    /* -- 갤러리4(매거진)만 다르게 -- */
-    #gallery4 .img-frame {width:120px;height:170px;}
-    #gallery4 .img-frame img {width:98%;height:98%;object-fit:cover;}
-    .shadow-line {width:90%;height:12px;margin:0 0 6px 0;display:block;border-radius:0;opacity:0.55;pointer-events:none;user-select:none;}
-    @media (max-width:900px){.img-grid{grid-template-columns:repeat(3,1fr);} .img-frame{width:110px;height:70px;} #gallery4 .img-frame{width:80px;height:120px;}}
-    @media (max-width:600px){.img-grid{grid-template-columns:repeat(2,1fr);} .img-frame{width:90px;height:56px;} #gallery4 .img-frame{width:56px;height:80px;} .shadow-line{height:6px;}}
-
-
-
-
-    .screen-section-label {
-      margin: 24px 0 10px 0;
-      padding: 0;
-      font-size: 1.15rem;
-      color: #232356;
-      font-weight: bold;
-      border: none;
-      background: none;
-      text-align: center;
-      width: 100%;
+    body { font-family: 'Segoe UI', '맑은 고딕', Arial, sans-serif; background: #fff; margin: 0; padding: 0; }
+    .searchbar-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 18px;
+      margin-bottom: 12px;
     }
-
-
-
-
-
-
-
-
-
-  </style>
-</head>
-<body>
-  <!-- 상단 검색창 -->
-  <div class="search-bar-fixed">
-    <div class="search-bar-center">
-      <form id="snarkForm" onsubmit="HandleForm(this); return false;" class="snark-form-row" autocomplete="off">
-        <div class="search-container">
-          <select name="service" class="search-select" title="검색엔진 선택">
-            <option disabled selected>검색엔진 선택 ▼</option>
-            <option>통합검색-네이버</option>
-            <option>통합검색-Google</option>
-            <option>주식챠트검색-Investing</option>
-            <option>챠트검색2-숫자입력</option>
-            <option>동영상검색-Youtube</option>
-            <option>통합검색-다음</option>
-            <option>통합검색-duckduckgo</option>
-            <option>통합검색-msn</option>
-            <option>통합검색-yahoo</option>
-            <option>통합검색-yandex</option>
-            <option>소프트웨어- 윈도우 </option>
-            <option>쇼핑검색- 네이버 </option>
-            <option>중고검색- 중고나라 </option>
-            <option>중고검색- 네이버카페 </option>
-            <option>중고검색- 당근마켓 </option>
-            <option>쇼핑검색- 다나와</option>
-            <option>쇼핑검색- 쿠팡 </option>
-            <option>쇼핑검색-알리(한글,영어)</option>
-            <option>쇼핑검색-아마존(한글,영어)</option>
-            <option>쇼핑검색-이베이(한글,영어)</option>
-            <option>영어사전-정의</option>
-            <option>영어사전-반의어</option>
-            <option>영문법검사기</option>
-            <option>영문법검사기2</option>
-            <option>영어사전-유의어</option>
-            <option>영어사전-어원</option>
-            <option>번역기-영어한글입력</option>
-            <option>사이트번역-주소입력</option>
-            <option>영어이름변경</option>
-            <option>우편번호검색</option>
-            <option>드라마검색-마루TV</option>
-            <option>전화번호검색-114</option>
-            <option>한자검색-네이버 </option>
-            <option>동영상검색-afreecatv</option>
-            <option>동영상검색-TVCAST</option>
-            <option>동영상검색-KAKAOTV</option>
-            <option>동영상검색-Vimeo</option>
-            <option>통합검색-MS-EDGEstore</option>
-            <option>통합검색-크롬웹스토어</option>
-            <option>통합검색-네이버자료실</option>
-            <option>서적검색-교보문고</option>
-            <option>서적검색-알라딘</option>
-            <option>통합검색-Yahoo</option>
-            <option>SNS검색-Twitter</option>
-            <option>SNS검색-instagram</option>
-            <option>SNS검색-kakao.com</option>
-            <option>SNS검색-Tumblr</option>
-            <option>SNS검색-tiktok</option>
-            <option>SNS검색-Pinterest </option>
-            <option>음악검색-네이버</option>
-            <option>음악검색-멜론</option>
-            <option>음악검색-벅스</option>
-            <option>음악검색-Sonshub</option>
-            <option>만화검색-stoon1</option>
-            <option>만화검색-skytoon1</option>
-          </select>
-          <input size="44" name="query" class="search-input" placeholder="검색어를 입력하세요">
-        </div>
-        <input type="submit" value="검색" class="search-btn">
-      </form>
-    </div>
-  </div>
-  <!-- 화면 1~7 네비 버튼 -->
-  <div class="screen-nav" id="screenNav">
-    <button class="screen-btn active" onclick="showScreen(1);">화면 1</button>
-    <button class="screen-btn" onclick="showScreen(2);">화면 2</button>
-    <button class="screen-btn" onclick="showScreen(3);">화면 3</button>
-    <button class="screen-btn" onclick="showScreen(4);">화면 4</button>
-    <button class="screen-btn" onclick="showScreen(5);">화면 5</button>
-    <button class="screen-btn" onclick="showScreen(6);">화면 6</button>
-    <button class="screen-btn" onclick="showScreen(7);">화면 7</button>
-  </div>
-  <!-- 풀화면 콘텐츠, 복붙하기 쉽게 각 화면 영역 정확히 구분 -->
-  <div class="screen-content">
-
-
-
-    <!-- ========== 화면 1 ========== -->
-    <div id="screen-block-1" class="screen-block active">
-      <div class="screen-section-label">갤러리 1</div>
-      <div class="img-grid" id="gallery1"></div>
-      <div class="screen-section-label">갤러리 2</div>
-      <div class="img-grid" id="gallery2"></div>
-      <div class="screen-section-label">갤러리 3</div>
-      <div class="img-grid" id="gallery3"></div>
-      <div class="screen-section-label">갤러리 4 (매거진)</div>
-      <div class="img-grid" id="gallery4"></div>
-    </div>
-
-
-
-    <!-- ========== 화면 2~7 예시 ========== -->
-    <div id="screen-block-2" class="screen-block">
-      <h2></h2>
-
-
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {margin:0; padding:0; background:#fff; font-family:'Segoe UI','맑은 고딕','NanumGothic',Arial,sans-serif;}
-    #controls { position: fixed; top: 20px; right: 10px; display: flex; gap: 8px; z-index: 100;}
-    #controls button { padding: 6px 10px; background: #3C3C8C; color: #fff; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;}
-    #controls button:nth-child(2) { background: #007bff; }
-    #controls button:nth-child(3) { background: #ffc107; color: #000; }
-    #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 200;}
-    #modal { background: #fff; padding: 20px; border-radius: 6px; width: 320px; box-shadow: 0 2px 8px rgba(0,0,0,0.3);}
-    #modal h3 { margin-bottom: 10px; font-size: 18px; }
-    #modal input { width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;}
-    .auto-thumb-btn { background: #eee; color: #333; border: 1px solid #aaa; border-radius: 4px; padding: 6px 10px; font-size: 13px; margin-bottom: 10px; margin-right: 5px; cursor: pointer; display: inline-block;}
-    .actions { text-align: right; }
-    .actions button { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin-left: 8px; font-size: 14px;}
-    .save-btn { background: #28a745; color: #fff; }
-    .cancel-btn { background: #dc3545; color: #fff; }
-    #media-grid { column-count: 5; column-gap: 10px; margin: 20px auto 20px; width: 100%; margin-top: 60px;}
-    .grid-item { break-inside: avoid; margin-bottom: 10px; position: relative;}
-    .grid-item img { width: 100%; height: auto; display: block; border-radius: 8px; cursor: pointer;}
-    .edit-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: #fff; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 12px;}
-    #html-editor, #html-preview { border-color: white;}
-    #html-edit-btn { display: block; margin: 0; padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer; position: relative; top: 20px;}
-    #html-editor { display: none; width: 100%; height: 300px; font-family: monospace; font-size: 14px; border: 1px solid #ccc; padding: 10px; box-sizing: border-box; background: #f0f8ff; border-color: #007bff;}
-    #html-preview { width: 100%; padding: 10px; border: 1px solid #ddd; background: white;}
-    .editor-space { height: 80px;}
-  </style>
-
-  <div id="controls">
-    <button id="save-media-btn">미디어 저장</button>
-    <button id="export-btn">내보내기</button>
-    <button id="import-btn">가져오기</button>
-    <input type="file" id="import-file" accept="application/json" style="display:none">
-  </div>
-  <div id="media-grid"></div>
-  <div class="editor-space"></div>
-  <button id="html-edit-btn">편집</button>
-  <textarea id="html-editor" placeholder="HTML 코드 편집"></textarea>
-  <div id="html-preview"></div>
-  <div id="modal-overlay">
-    <div id="modal">
-      <h3>미디어 저장</h3>
-      <input type="text" id="img-url" placeholder="사진 URL 입력" autofocus>
-      <button type="button" class="auto-thumb-btn" id="auto-thumb-btn">썸네일 자동찾기</button>
-      <input type="text" id="link-url" placeholder="연결 링크 입력">
-      <div class="actions">
-        <button class="cancel-btn">취소</button>
-        <button class="save-btn">저장</button>
-      </div>
-    </div>
-  </div>
-  <script>
-    // 썸네일 자동추출 함수
-    function extractYouTubeId(url) {
-      const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([a-zA-Z0-9_-]{11})/;
-      const match = url.match(regex);
-      return match ? match[1] : null;
-    }
-
-    // 변수 선언
-    const saveBtn = document.getElementById('save-media-btn'),
-      exportBtn = document.getElementById('export-btn'),
-      importBtn = document.getElementById('import-btn'),
-      importFile = document.getElementById('import-file'),
-      overlay = document.getElementById('modal-overlay'),
-      cancelBtn = document.querySelector('.cancel-btn'),
-      confirmBtn = document.querySelector('.save-btn'),
-      imgInput = document.getElementById('img-url'),
-      linkInput = document.getElementById('link-url'),
-      gridContainer = document.getElementById('media-grid'),
-      autoThumbBtn = document.getElementById('auto-thumb-btn');
-    let editingIndex = null;
-
-    saveBtn.onclick = () => openModal();
-    function openModal(item, idx) {
-      if (item) {
-        imgInput.value = item.imgUrl;
-        linkInput.value = item.linkUrl;
-        confirmBtn.textContent = '수정';
-        editingIndex = idx;
-      } else {
-        imgInput.value = '';
-        linkInput.value = '';
-        confirmBtn.textContent = '저장';
-        editingIndex = null;
-      }
-      overlay.style.display = 'flex';
-      imgInput.focus();
-    }
-    cancelBtn.onclick = () => { overlay.style.display = 'none'; editingIndex = null; };
-
-    autoThumbBtn.onclick = function() {
-      const linkVal = linkInput.value.trim() || imgInput.value.trim();
-      const youtubeId = extractYouTubeId(linkVal);
-      if (youtubeId) {
-        imgInput.value = `https://img.youtube.com/vi/${youtubeId}/0.jpg`;
-        alert('유튜브 썸네일이 자동으로 입력되었습니다!');
-      } else {
-        alert('유튜브 영상 링크를 입력해 주세요.');
-      }
-    };
-
-    confirmBtn.onclick = () => {
-      const iurl = imgInput.value.trim();
-      if (!iurl) { alert('사진 URL을 입력해주세요.'); imgInput.focus(); return; }
-      let lurl = linkInput.value.trim();
-      if (!lurl) { alert('연결 링크를 입력해주세요.'); linkInput.focus(); return; }
-      if (!/^https?:\/\//i.test(lurl)) lurl = 'https://' + lurl;
-      const list = JSON.parse(localStorage.getItem('mediaList') || '[]');
-      if (editingIndex !== null) list[editingIndex] = { imgUrl: iurl, linkUrl: lurl };
-      else list.push({ imgUrl: iurl, linkUrl: lurl });
-      localStorage.setItem('mediaList', JSON.stringify(list));
-      overlay.style.display = 'none';
-      renderGrid();
-      editingIndex = null;
-    };
-
-    exportBtn.onclick = () => {
-      const mediaList = JSON.parse(localStorage.getItem('mediaList') || '[]');
-      const gridContent = gridContainer.innerHTML;
-      const htmlContent = htmlPreview.innerHTML;
-      const data = {
-        mediaList: mediaList,
-        gridContent: gridContent,
-        htmlContent: htmlContent
-      };
-      const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'mediaList_and_html.json';
-      a.click();
-      URL.revokeObjectURL(url);
-    };
-
-    importBtn.onclick = () => importFile.click();
-    importFile.onchange = e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = evt => {
-        try {
-          const data = JSON.parse(evt.target.result);
-          if (Array.isArray(data.mediaList)) {
-            localStorage.setItem('mediaList', JSON.stringify(data.mediaList));
-            renderGrid();
-          }
-          if (data.htmlContent) {
-            htmlPreview.innerHTML = data.htmlContent;
-            htmlEditor.value = data.htmlContent;
-            // 추가: 가져오기(import) 한 html도 localStorage에 저장!
-            localStorage.setItem('mediaHtmlContent', data.htmlContent);
-          }
-          alert('데이터가 복원되었습니다.');
-        } catch {
-          alert('파일 읽기 중 오류가 발생했습니다.');
-        }
-      };
-      reader.readAsText(file);
-      importFile.value = null;
-    };
-
-    function renderGrid() {
-      const list = JSON.parse(localStorage.getItem('mediaList') || '[]');
-      gridContainer.innerHTML = '';
-      list.slice(0, 500).forEach((item, idx) => {
-        const card = document.createElement('div');
-        card.className = 'grid-item';
-        const img = document.createElement('img');
-        img.src = item.imgUrl;
-        img.alt = '';
-        img.addEventListener('click', () => window.open(item.linkUrl, '_blank'));
-        const editBtn = document.createElement('button');
-        editBtn.className = 'edit-btn';
-        editBtn.textContent = '수정';
-        editBtn.addEventListener('click', e => { e.stopPropagation(); openModal(item, idx); });
-        card.append(img, editBtn);
-        gridContainer.append(card);
-      });
-    }
-
-    // HTML 편집기 로직 (여기서 편집 마침 시 htmlPreview 내용을 localStorage에 저장!)
-    const htmlEditBtn = document.getElementById('html-edit-btn');
-    const htmlEditor = document.getElementById('html-editor');
-    const htmlPreview = document.getElementById('html-preview');
-    let htmlEditing = false;
-
-    htmlEditBtn.onclick = () => {
-      htmlEditing = !htmlEditing;
-      if (htmlEditing) {
-        htmlEditor.style.display = 'block';
-        htmlPreview.style.display = 'none';
-        htmlEditBtn.textContent = '마침';
-        htmlEditor.value = htmlPreview.innerHTML;
-      } else {
-        htmlPreview.innerHTML = htmlEditor.value;
-        htmlEditor.style.display = 'none';
-        htmlPreview.style.display = 'block';
-        htmlEditBtn.textContent = '편집';
-        // 추가: 편집이 끝난 HTML도 localStorage에 저장!
-        localStorage.setItem('mediaHtmlContent', htmlPreview.innerHTML);
-      }
-    };
-
-    // 페이지 로드 시 localStorage에서 htmlContent를 불러오기!
-    document.addEventListener('DOMContentLoaded', () => {
-      renderGrid();
-      const savedHtml = localStorage.getItem('mediaHtmlContent');
-      if (savedHtml) {
-        htmlPreview.innerHTML = savedHtml;
-        htmlEditor.value = savedHtml;
-      }
-    });
-  </script>
-
-
-
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-   
-
-
-
-
-    <div id="screen-block-3" class="screen-block">
-
-
-
-
-  <style>
-    body {
-      font-family: Helvetica, Arial, sans-serif;
-      background: #f9fafe;
-      margin: 0;
-      padding: 0;
-    }
-    #media-grid {
-      column-count: 5;
-      column-gap: 10px;
-      margin: 40px auto 20px;
-      width: 100%;
-      max-width: 1400px;
-      min-height: 400px;
-    }
-    .grid-item {
-      break-inside: avoid;
-      margin-bottom: 10px;
-      position: relative;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    .searchbar-form {
+      display: flex;
+      align-items: center;
+      border: 2.7px solid #232356;
+      border-radius: 38px;
       overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-    .grid-item a {
-      display: block;
-      text-decoration: none;
-    }
-    .grid-item img {
-      width: 100%;
-      height: auto;
-      display: block;
-      border-radius: 8px 8px 0 0;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .grid-item img:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    }
-    .edit-btn {
-      display: none !important; /* 무조건 숨김 */
-    }
-    @media (max-width: 1200px) {
-      #media-grid { column-count: 3; }
-    }
-    @media (max-width: 700px) {
-      #media-grid { column-count: 2; }
-    }
-    @media (max-width: 500px) {
-      #media-grid { column-count: 1; }
-    }
-  </style>
-</head>
-<body>
-  <h2 style="text-align:center; margin-top:32px;">
-    그림그리드 미리보기<br>
-    <span style="font-size:16px;color:#555;">
-      (아래 기본폼을 복사해 붙여넣으세요)
-    </span>
-  </h2>
-  <div id="media-grid">
-    <!-- 아래처럼 이미지와 링크, 수정버튼 항상 포함! -->
-
-
-    <div class="grid-item">
-      <a href="https://naver.com" target="_blank" rel="noopener">
-        <img src="https://dimg.donga.com/a/390/390/95/1/ugc/CDB/WOMAN/Article/68/37/b9/2d/6837b92d1df6d2738e25.jpg" alt="" />
-      </a>
-      <button class="edit-btn">수정</button>
-    </div>
-
-
-    <div class="grid-item">
-      <a href="https://daum.net" target="_blank" rel="noopener">
-        <img src="https://dimg.donga.com/ugc/CDB/WOMAN/Article/68/24/5d/04/68245d041beca0a0a0a.jpg" alt="" />
-      </a>
-      <button class="edit-btn">수정</button>
-    </div>
-
-
-
-
-
-<div class="grid-item">
-  <a href="https://m.singleskorea.com/article/719953/THESINGLE" target="_blank" rel="noopener">
-    <img src="https://tbc.imgdl.xcache.kinxcdn.com/cdn001/20250528/967391387_USMEF_%E1%84%8B%E1%85%A9%E1%84%85%E1%85%A6%E1%86%AB%E1%84%8C%E1%85%B5%E1%84%86%E1%85%B5%E1%84%90%E1%85%B3%E1%84%87%E1%85%A9%E1%86%AF.jpg" alt="" />
-  </a>
-  <button class="edit-btn">수정</button>
-</div>
-
-
-
-
-
-
-    <!-- 예시: 이 형식 그대로 복사해서 링크/이미지만 바꾸면 OK! -->
-    <!--
-    <div class="grid-item">
-      <a href="링크주소" target="_blank" rel="noopener">
-        <img src="이미지주소" alt="" />
-      </a>
-      <button class="edit-btn">수정</button>
-    </div>
-    -->
-  </div>
-
-
-
-
-
-
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-   
-
-    <div id="screen-block-4" class="screen-block">
-
-
-     
-    </div>
-
-
-
-
-
-
-
-
-
-   
-
-    <div id="screen-block-5" class="screen-block">
-
-
-
-
-  <style>
-    html, body {
-      margin: 0; padding: 0;
       background: #fff;
-      font-family: 'Segoe UI', '맑은 고딕', Arial, sans-serif;
-      color: #263046;
-    }
-    .dashboard {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 80px 0 80px 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #fff;
-      min-height: 100vh;
-    }
-    .widget-card {
-      background: #fff;
-      border-radius: 42px;
-      box-shadow: 0 18px 56px 0 rgba(49,64,112,0.12);
-      margin-bottom: 72px;
-      padding: 70px 54px 56px 54px;
+      min-width: 320px;
+      max-width: 490px;
       width: 100%;
-      max-width: 1080px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: box-shadow 0.18s;
+      height: 56px;
+      box-shadow: 0 2px 10px 0 rgba(60,60,140,0.03);
     }
-    .widget-card:last-child { margin-bottom: 0; }
-    .widget-title {
-      font-size: 2.7rem;
-      font-weight: 900;
-      color: #4a5bd8;
-      margin-bottom: 40px;
-      letter-spacing: 2.5px;
-      text-shadow: 0 3px 16px #e3eafd;
-      text-align: center;
+    .searchbar-form:focus-within {
+      border: 2.7px solid #32307c;
+      box-shadow: 0 2px 18px 0 rgba(50,48,124,0.09);
     }
-    /* ---- 듀얼 시계 ---- */
-    .clock-container {
-      width: 100%;
-      display: flex;
-      gap: 60px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .clock-card {
-      background: linear-gradient(110deg, #f4f7fa 80%, #eaf0fd 100%);
-      border-radius: 34px;
-      box-shadow: 0 6px 34px rgba(96,115,186,0.14);
-      padding: 54px 32px 38px 32px;
-      min-width: 430px;
-      max-width: 500px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .city-select {
-      margin-bottom: 22px;
-      font-size: 2rem;
+    .searchbar-select {
+      background: transparent;
       border: none;
-      border-radius: 18px;
-      background: #eef2fa;
-      padding: 15px 38px;
+      padding: 0 13px;
+      font-size: 1.01rem;
+      color: #32307c;
       font-weight: bold;
-      color: #3b4263;
-      box-shadow: 0 3px 13px rgba(96,115,186,0.09);
-    }
-    .clock-time {
-      font-size: 4.1rem;
-      font-weight: 900;
-      letter-spacing: 2.5px;
-      color: #30409a;
-      margin-bottom: 15px;
-    }
-    .clock-date {
-      font-size: 1.9rem;
-      color: #7b85ab;
-      letter-spacing: 1.3px;
-      margin-bottom: 13px;
-      text-align: center;
-    }
-    .clock-label {
-      font-size: 1.42rem;
-      color: #6671a6;
-      font-weight: 700;
-    }
-    /* ---- 듀얼 온도/습도 ---- */
-    .meter-container {
-      width: 100%;
-      display: flex;
-      gap: 60px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .meter-card {
-      background: linear-gradient(115deg, #f7fcff 60%, #eaf7fd 100%);
-      border-radius: 34px;
-      box-shadow: 0 6px 34px rgba(96,115,186,0.14);
-      padding: 54px 32px 38px 32px;
-      min-width: 430px;
-      max-width: 500px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: 10px;
-      position: relative;
-    }
-    .meter-label {
-      font-size: 1.51rem;
-      color: #51a3c3;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .meter-value {
-      font-size: 3.1rem;
-      font-weight: 900;
-      color: #1b4a77;
-      margin: 0 0 11px 0;
-      display: flex;
-      align-items: center;
-      gap: 18px;
-    }
-    .meter-icon {
-      font-size: 2.5rem;
-      vertical-align: middle;
-    }
-    .refresh-btn {
-      position: absolute;
-      right: 32px; top: 32px;
-      background: #f4f5fc;
-      color: #6f8aea;
-      border: none;
-      border-radius: 50%;
-      width: 56px; height: 56px;
-      font-size: 2rem;
+      outline: none;
       cursor: pointer;
-      box-shadow: 0 2px 14px rgba(81,109,196,0.09);
+      min-width: 95px;
+    }
+    .searchbar-input {
+      flex: 1;
+      border: none;
+      padding: 0 13px;
+      font-size: 1.02rem;
+      background: #fff;
+      color: #232356;
+      outline: none;
+      height: 100%;
+    }
+    .searchbar-btn {
+      background: #32307c;
+      color: #fff;
+      border: none;
+      padding: 0 24px;
+      min-width: 86px;
+      height: 100%;
+      font-size: 1.08rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 0 34px 34px 0;
+      letter-spacing: 0.1px;
       transition: background 0.15s;
     }
-    .refresh-btn:hover { background: #dae2fd; }
-    /* ---- 계산기 ---- */
-    .calc-title {
-      font-size: 2.18rem;
-      font-weight: 900;
-      color: #5c67ef;
-      letter-spacing: 1.6px;
-      margin-bottom: 24px;
-      text-shadow: 0 3px 12px #e3eafd;
+    .searchbar-btn:hover { background: #22205c; }
+
+    .screen-links {
+      text-align: center;
+      margin-top: 7px;
+      margin-bottom: 0;
     }
-    .calc-screen {
-      width: 100%;
-      height: 110px;
-      font-size: 3.1rem;
-      border: none;
-      background: linear-gradient(90deg, #f2f5ff 0%, #f7f8fc 100%);
-      border-radius: 20px;
-      text-align: right;
-      padding: 28px 30px;
-      box-sizing: border-box;
-      margin-bottom: 28px;
-      color: #2c3666;
-      font-weight: 800;
-      box-shadow: 0 4px 20px rgba(90,108,180,0.09);
-      letter-spacing: 1.7px;
-    }
-    .calc-buttons {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 19px;
-    }
-    .calc-btn {
-      font-size: 2rem;
-      padding: 27px 0;
-      border: none;
-      border-radius: 18px;
-      background: #f0f3fa;
-      color: #365178;
-      cursor: pointer;
+    .screen-links a {
+      display: inline-block;
+      margin: 0 3px;
+      font-size: 1.13rem;
+      color: #232356;
       font-weight: bold;
-      transition: background 0.17s, color 0.17s;
-      box-shadow: 0 2px 16px rgba(88,112,174,0.10);
-      outline: none;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.14s;
+      padding: 6px 17px 7px 17px;
+      border-radius: 20px;
+      letter-spacing: 0.02em;
+      line-height: 1.58;
     }
-    .calc-btn:active { background: #dde4ff; color: #4359a5; }
-    .calc-btn.op {
-      background: linear-gradient(90deg,#b6cafd 0%,#637dee 100%);
+    .screen-links a:hover, .screen-links a.active {
       color: #fff;
-      font-weight: 900;
+      background: #32307c;
+      text-decoration: none;
     }
-    .calc-btn.op:active { background: linear-gradient(90deg,#637dee 0%,#b6cafd 100%); }
-    .calc-btn.equal {
-      background: linear-gradient(90deg, #6de0ca 0%, #32b896 100%);
-      color: #fff;
-      grid-column: 4/6;
-      font-weight: 900;
-      font-size: 2.22rem;
-    }
-    .calc-btn.equal:active { background: linear-gradient(90deg, #32b896 0%, #6de0ca 100%);}
-    .calc-btn.clear {
-      background: linear-gradient(90deg,#f7b7b7 0%,#ff5858 100%);
-      color: #fff;
-      font-weight: 900;
-      font-size: 1.86rem;
-    }
-    .calc-btn.clear:active { background: linear-gradient(90deg,#ff5858 0%,#f7b7b7 100%);}
-    .calc-btn.fn {
-      background: linear-gradient(90deg,#a9e2fa 0%,#79b6fa 100%);
-      color: #225681;
-      font-weight: 900;
-      font-size: 1.85rem;
-    }
-    .calc-btn.fn:active { background: linear-gradient(90deg,#79b6fa 0%,#a9e2fa 100%);}
-    .calc-btn.small { font-size: 1.35rem; }
-    @media (max-width: 1000px) {
-      .dashboard { max-width: 100vw; }
-      .widget-card { max-width: 97vw; padding: 36px 4vw 30px 4vw; }
-      .clock-card, .meter-card { min-width: 95vw; max-width: 99vw; padding: 24px 2vw 16px 2vw;}
-      .calc-screen { font-size: 2rem; height: 62px; padding: 13px 2vw; }
-      .calc-btn { font-size: 1.18rem; padding: 12px 0;}
+
+    #screen-frame {
+      display: none;
+      position: relative;
+      width: 99vw;
+      min-height: 1100px;
+      max-width: 1200px;
+      margin: 22px auto 38px auto;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0;
+      overflow: hidden !important;
+      transition: none;
     }
     @media (max-width: 700px) {
-      .widget-title, .calc-title { font-size: 1.15rem; }
-      .clock-container, .meter-container { gap: 15px;}
-      .clock-card, .meter-card { min-width: 96vw; max-width: 99vw; padding: 14px 1vw 9px 1vw;}
-      .clock-time { font-size: 1.6rem; }
-      .clock-date { font-size: 0.95rem; }
-      .meter-value { font-size: 1.6rem; }
-      .calc-screen { font-size: 1.05rem; height: 40px; }
-      .calc-btn { font-size: 0.94rem; padding: 7px 0;}
+      .searchbar-form { min-width: 0; width: 98%; height: 36px; }
+      .searchbar-select, .searchbar-input, .searchbar-btn { font-size: 0.89rem; }
+      .screen-links a { margin: 0 2px; font-size: 0.95rem; padding: 4px 6px;}
+      #screen-frame { min-height: 450px; width: 98vw; border-radius: 6px;}
     }
   </style>
 </head>
 <body>
-  <div class="dashboard">
-    <!-- 듀얼 월드 시계 -->
-    <div class="widget-card">
-      <div class="widget-title">🌏 듀얼 월드 시계</div>
-      <div class="clock-container">
-        <div class="clock-card">
-          <select class="city-select" id="city1"></select>
-          <div class="clock-time" id="time1"></div>
-          <div class="clock-date" id="date1"></div>
-          <div class="clock-label" id="label1"></div>
-        </div>
-        <div class="clock-card">
-          <select class="city-select" id="city2"></select>
-          <div class="clock-time" id="time2"></div>
-          <div class="clock-date" id="date2"></div>
-          <div class="clock-label" id="label2"></div>
-        </div>
-      </div>
-    </div>
-    <!-- 듀얼 온도/습도계 -->
-    <div class="widget-card">
-      <div class="widget-title">🌡️ 듀얼 온도/습도계</div>
-      <div class="meter-container">
-        <div class="meter-card" id="card1">
-          <select class="city-select" id="mcity1"></select>
-          <div class="meter-label">기온</div>
-          <div class="meter-value" id="temp1">--</div>
-          <div class="meter-label">습도</div>
-          <div class="meter-value" id="humid1">--</div>
-          <button class="refresh-btn" onclick="fetchWeather(1)">⟳</button>
-        </div>
-        <div class="meter-card" id="card2">
-          <select class="city-select" id="mcity2"></select>
-          <div class="meter-label">기온</div>
-          <div class="meter-value" id="temp2">--</div>
-          <div class="meter-label">습도</div>
-          <div class="meter-value" id="humid2">--</div>
-          <button class="refresh-btn" onclick="fetchWeather(2)">⟳</button>
-        </div>
-      </div>
-    </div>
-    <!-- 계산기 -->
-    <div class="widget-card">
-      <div class="widget-title">📐 공학용 계산기</div>
-      <input type="text" class="calc-screen" id="screen" value="0" readonly>
-      <div class="calc-buttons">
-        <button class="calc-btn clear" onclick="clearScreen()">C</button>
-        <button class="calc-btn fn small" onclick="insert('Math.PI')">π</button>
-        <button class="calc-btn fn small" onclick="insert('Math.E')">e</button>
-        <button class="calc-btn fn small" onclick="insert('(')">(</button>
-        <button class="calc-btn fn small" onclick="insert(')')">)</button>
-        <button class="calc-btn fn" onclick="insert('Math.sin(')">sin</button>
-        <button class="calc-btn fn" onclick="insert('Math.cos(')">cos</button>
-        <button class="calc-btn fn" onclick="insert('Math.tan(')">tan</button>
-        <button class="calc-btn fn" onclick="insert('Math.log10(')">log</button>
-        <button class="calc-btn fn" onclick="insert('Math.log(')">ln</button>
-        <button class="calc-btn" onclick="insert('7')">7</button>
-        <button class="calc-btn" onclick="insert('8')">8</button>
-        <button class="calc-btn" onclick="insert('9')">9</button>
-        <button class="calc-btn op" onclick="insert('/')">÷</button>
-        <button class="calc-btn fn" onclick="insert('**')">^</button>
-        <button class="calc-btn" onclick="insert('4')">4</button>
-        <button class="calc-btn" onclick="insert('5')">5</button>
-        <button class="calc-btn" onclick="insert('6')">6</button>
-        <button class="calc-btn op" onclick="insert('*')">×</button>
-        <button class="calc-btn fn small" onclick="insert('Math.sqrt(')">√</button>
-        <button class="calc-btn" onclick="insert('1')">1</button>
-        <button class="calc-btn" onclick="insert('2')">2</button>
-        <button class="calc-btn" onclick="insert('3')">3</button>
-        <button class="calc-btn op" onclick="insert('-')">-</button>
-        <button class="calc-btn fn small" onclick="backspace()">←</button>
-        <button class="calc-btn" onclick="insert('0')">0</button>
-        <button class="calc-btn" onclick="insert('.')">.</button>
-        <button class="calc-btn op" onclick="insert('+')">+</button>
-        <button class="calc-btn equal" onclick="calculate()">=</button>
-      </div>
-    </div>
+  <!-- 검색엔진바 -->
+  <div class="searchbar-wrap">
+    <form class="searchbar-form" id="searchForm" target="_blank">
+      <select class="searchbar-select" id="engine">
+        <option value="naver">네이버</option>
+        <option value="google">구글</option>
+        <option value="bing">빙</option>
+        <option value="youtube">유튜브</option>
+      </select>
+      <input class="searchbar-input" id="query" type="text" placeholder="검색어를 입력하세요" autocomplete="off" />
+      <button class="searchbar-btn" type="submit">검색</button>
+    </form>
   </div>
+
+  <!-- 화면 전환용 링크 (버튼 느낌) -->
+  <div class="screen-links">
+    <a href="#" onclick="showScreen(event, 'screen1.html')">화면 1</a>
+    <a href="#" onclick="showScreen(event, 'mainpage2.html')">화면 2</a>
+    <a href="#" onclick="showScreen(event, 'https://myway.kr/mainpage3.html')">화면 3</a>
+    <a href="#" onclick="showScreen(event, 'mainpage4.html')">화면 4</a>
+    <a href="#" onclick="showScreen(event, 'https://myway.kr/imagegridfolder33')">화면 5</a>
+    <a href="#" onclick="showScreen(event, 'https://myway.kr/screen52.html')">화면 6</a>
+    <a href="#" onclick="showScreen(event, 'https://myway.kr/page7.html')">화면 7</a>
+  </div>
+
+  <!-- 아이프레임: 외부 페이지를 이곳에 표시 -->
+  <iframe id="screen-frame" scrolling="no"></iframe>
+
   <script>
-    // ------- 공통 도시 데이터 ---------
-    const cities = [
-      { name: "서울", country: "대한민국", zone: "Asia/Seoul", lat: 37.5665, lon: 126.9780 },
-      { name: "뉴욕", country: "미국", zone: "America/New_York", lat: 40.7128, lon: -74.0060 },
-      { name: "도쿄", country: "일본", zone: "Asia/Tokyo", lat: 35.6895, lon: 139.6917 },
-      { name: "런던", country: "영국", zone: "Europe/London", lat: 51.5074, lon: -0.1278 },
-      { name: "파리", country: "프랑스", zone: "Europe/Paris", lat: 48.8566, lon: 2.3522 },
-      { name: "베이징", country: "중국", zone: "Asia/Shanghai", lat: 39.9042, lon: 116.4074 },
-      { name: "로스앤젤레스", country: "미국", zone: "America/Los_Angeles", lat: 34.0522, lon: -118.2437 },
-      { name: "시드니", country: "호주", zone: "Australia/Sydney", lat: -33.8688, lon: 151.2093 },
-      { name: "홍콩", country: "중국", zone: "Asia/Hong_Kong", lat: 22.3193, lon: 114.1694 },
-      { name: "베를린", country: "독일", zone: "Europe/Berlin", lat: 52.5200, lon: 13.4050 },
-      { name: "방콕", country: "태국", zone: "Asia/Bangkok", lat: 13.7563, lon: 100.5018 },
-      { name: "두바이", country: "아랍에미리트", zone: "Asia/Dubai", lat: 25.2048, lon: 55.2708 },
-      { name: "싱가포르", country: "싱가포르", zone: "Asia/Singapore", lat: 1.3521, lon: 103.8198 },
-      { name: "모스크바", country: "러시아", zone: "Europe/Moscow", lat: 55.7558, lon: 37.6176 },
-      { name: "토론토", country: "캐나다", zone: "America/Toronto", lat: 43.6532, lon: -79.3832 },
-      { name: "상파울루", country: "브라질", zone: "America/Sao_Paulo", lat: -23.5505, lon: -46.6333 },
-      { name: "델리", country: "인도", zone: "Asia/Kolkata", lat: 28.6139, lon: 77.2090 },
-      { name: "이스탄불", country: "터키", zone: "Europe/Istanbul", lat: 41.0082, lon: 28.9784 }
-    ];
+    // 검색엔진별 URL
+    const engines = {
+      naver: "https://search.naver.com/search.naver?query=",
+      google: "https://www.google.com/search?q=",
+      bing: "https://www.bing.com/search?q=",
+      youtube: "https://www.youtube.com/results?search_query="
+    };
 
-    // --------- 시계 select -----------
-    function setupClockCitySelect(selectId, defaultIdx) {
-      const select = document.getElementById(selectId);
-      cities.forEach((city, idx) => {
-        const option = document.createElement("option");
-        option.value = city.zone;
-        option.textContent = `${city.name} (${city.country})`;
-        select.appendChild(option);
-      });
-      select.selectedIndex = defaultIdx;
-    }
-    setupClockCitySelect("city1", 0); // 서울
-    setupClockCitySelect("city2", 1); // 뉴욕
-
-    function updateClock(idx) {
-      const select = document.getElementById("city"+idx);
-      const tz = select.value;
-      const cityData = cities.find(c => c.zone === tz);
-      const now = new Date();
-      const time = now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: tz });
-      const date = now.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long', timeZone: tz });
-      document.getElementById("time"+idx).textContent = time;
-      document.getElementById("date"+idx).textContent = date;
-      document.getElementById("label"+idx).textContent = `${cityData.name} (${cityData.country})`;
-    }
-    function tick() {
-      updateClock(1);
-      updateClock(2);
-    }
-    setInterval(tick, 1000);
-    tick();
-    document.getElementById("city1").addEventListener("change", () => updateClock(1));
-    document.getElementById("city2").addEventListener("change", () => updateClock(2));
-
-    // --------- 온도/습도 select -----------
-    function setupMeterCitySelect(selectId, defaultIdx) {
-      const select = document.getElementById(selectId);
-      cities.forEach((city, idx) => {
-        const option = document.createElement("option");
-        option.value = idx;
-        option.textContent = `${city.name} (${city.country})`;
-        select.appendChild(option);
-      });
-      select.selectedIndex = defaultIdx;
-    }
-    setupMeterCitySelect("mcity1", 0); // 서울
-    setupMeterCitySelect("mcity2", 1); // 뉴욕
-
-    async function fetchWeather(idx) {
-      const select = document.getElementById("mcity"+idx);
-      const city = cities[select.value];
-      const tempDiv = document.getElementById("temp"+idx);
-      const humidDiv = document.getElementById("humid"+idx);
-      tempDiv.innerHTML = `<span class="meter-icon">🌡️</span> <span style="font-size:2.4rem;">로딩중...</span>`;
-      humidDiv.innerHTML = `<span class="meter-icon">💧</span> <span style="font-size:2.4rem;">로딩중...</span>`;
-      try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current=temperature_2m,relative_humidity_2m&timezone=auto`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.current) {
-          tempDiv.innerHTML = `<span class="meter-icon">🌡️</span> ${data.current.temperature_2m} °C`;
-          humidDiv.innerHTML = `<span class="meter-icon">💧</span> ${data.current.relative_humidity_2m} %`;
-        } else {
-          tempDiv.innerHTML = "정보 없음";
-          humidDiv.innerHTML = "정보 없음";
-        }
-      } catch (e) {
-        tempDiv.innerHTML = "오류";
-        humidDiv.innerHTML = "오류";
+    // 검색 전송
+    document.getElementById('searchForm').onsubmit = function(e) {
+      e.preventDefault();
+      const engine = document.getElementById('engine').value;
+      const query = document.getElementById('query').value.trim();
+      if(query) {
+        window.open(engines[engine] + encodeURIComponent(query), "_blank");
       }
+    };
+
+    // 화면 메뉴 클릭시
+    function showScreen(e, url) {
+      e.preventDefault();
+      // 링크 스타일 활성화
+      document.querySelectorAll('.screen-links a').forEach(a => a.classList.remove('active'));
+      e.target.classList.add('active');
+      // 아이프레임 보이기 + 주소 갱신
+      var frame = document.getElementById('screen-frame');
+      frame.style.display = 'block';
+      frame.src = url;
+      frame.setAttribute('scrolling', 'no');
+      frame.style.overflow = 'hidden';
+      frame.style.minHeight = '1100px'; // 버튼 잘릴 때 더 늘리면 됨
+      frame.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    document.getElementById("mcity1").addEventListener("change", () => fetchWeather(1));
-    document.getElementById("mcity2").addEventListener("change", () => fetchWeather(2));
-    fetchWeather(1); fetchWeather(2);
 
-    // ---------- 계산기 로직 ----------
-    let screen = document.getElementById('screen');
-    let expr = '';
-    function insert(val) {
-      if (screen.value === "Error") expr = '';
-      expr += val;
-      screen.value = expr.replace(/Math\.(PI|E|sin|cos|tan|log|log10|sqrt)\(/g, function(match) {
-        switch(match) {
-          case "Math.PI": return "π";
-          case "Math.E": return "e";
-          case "Math.sin(": return "sin(";
-          case "Math.cos(": return "cos(";
-          case "Math.tan(": return "tan(";
-          case "Math.log(": return "ln(";
-          case "Math.log10(": return "log(";
-          case "Math.sqrt(": return "√(";
-          default: return match;
-        }
-      });
+ document.getElementById('screen-frame').onload = function() {
+    try {
+      this.style.height = this.contentWindow.document.body.scrollHeight + 'px';
+    } catch(e) {
+      this.style.height = this.style.minHeight || '1100px';
     }
-    function clearScreen() {
-      expr = '';
-      screen.value = '0';
-    }
-    function calculate() {
-      try {
-        let calcExpr = expr.replace(/\^/g, '**');
-        calcExpr = calcExpr.replace(/Math\.(sin|cos|tan)\(([^)]+)\)/g, function(_, fn, arg) {
-          return `Math.${fn}((${arg})*Math.PI/180)`;
-        });
-        let result = eval(calcExpr);
-        if (typeof result === 'number' && isFinite(result)) {
-          screen.value = result;
-          expr = result.toString();
-        } else {
-          screen.value = 'Error';
-          expr = '';
-        }
-      } catch (e) {
-        screen.value = 'Error';
-        expr = '';
-      }
-    }
-    function backspace() {
-      if (expr.length > 0) {
-        expr = expr.slice(0, -1);
-        screen.value = expr || '0';
-      }
-    }
-  </script>
-
-
-
-     
-
-
-
-
-
-     
-      <h2>여기에 화면 5의 HTML 코드를 넣으세요</h2>
-      <form onsubmit="alert('폼 제출!'); return false;">
-        <input type="text" placeholder="여기에 입력">
-        <input type="submit" value="제출">
-      </form>
-    </div>
-
-
-
-
+  };
 
 
 
    
-
-
-    <div id="screen-block-6" class="screen-block">
-      <h2>여기에 화면 6의 HTML 코드를 넣으세요</h2>
-      <a href="https://naver.com" target="_blank">네이버 바로가기</a>
-    </div>
-    <div id="screen-block-7" class="screen-block">
-
-
-
-
-
-
-      <h2>여기에 화면 7의 HTML 코드를 넣으세요</h2>
-      <div style="background:linear-gradient(90deg,#ff9,#99f);padding:10px;">색 배경 예시</div>
-    </div>
-  </div>
-
-
-
-
-
-  <script>
-    // 검색엔진 로직(건드리지 않음)
-    var snarkEngines = [
-      { name: "통합검색-네이버", home: "https://www.naver.com/", search: "https://search.naver.com/search.naver?query=" },
-      { name: "통합검색-Google", home: "https://www.google.co.uk/webhp?hl=ko&gl=uk", search: "https://www.google.co.uk/search?hl=ko&gl=uk&q=" },
-      { name: "주식챠트검색-Investing", home: "https://kr.investing.com/", search: "https://www.tradingview.com/chart/?symbol=" },
-      { name: "챠트검색2-숫자입력", home: "https://s.tradingview.com/", search: "https://s.tradingview.com/widgetembed/?frameElementId=tradingview_059d1&symbol=" },
-      { name: "동영상검색-Youtube", home: "https://www.youtube.com/", search: "https://www.youtube.com/results?search_query=" },
-      { name: "통합검색-다음", home: "https://www.daum.net/", search: "https://search.daum.net/search?w=tot&t__nil_searchbox=suggest&sug=&q=" },
-      { name: "통합검색-duckduckgo", home: "https://duckduckgo.com", search: "https://duckduckgo.com/?q=" },
-      { name: "통합검색-msn", home: "https://www.msn.com/ko-kr/news", search: "https://www.bing.com/search?q=" },
-      { name: "통합검색-yahoo", home: "https://www.yahoo.com", search: "https://search.yahoo.com/search?p=" },
-      { name: "통합검색-yandex", home: "https://yandex.ru", search: "https://yandex.ru/search/?lr=10635&text=" },
-      { name: "소프트웨어- 윈도우 ", home: "https://www.uptodown.com", search: "https://kr.uptodown.com/windows/search/" },
-      { name: "쇼핑검색- 네이버 ", home: "https://shopping.naver.com/", search: "https://search.shopping.naver.com/search/all?query=" },
-      { name: "중고검색- 중고나라 ", home: "https://cafe.naver.com/joonggonara", search: "https://web.joongna.com/search/" },
-      { name: "중고검색- 네이버카페 ", home: "https://cafe.naver.com", search: "https://cafe.naver.com/ca-fe/home/search/c-articles?q=" },
-      { name: "중고검색- 당근마켓 ", home: "https://www.daangn.com", search: "https://www.daangn.com/search/" },
-      { name: "쇼핑검색- 다나와", home: "https://www.danawa.com/", search: "https://search.danawa.com/dsearch.php?k1=" },
-      { name: "쇼핑검색- 쿠팡 ", home: "https://www.coupang.com", search: "https://www.coupang.com/np/search?q=" },
-      { name: "쇼핑검색-알리(한글,영어)", home: "https://ko.aliexpress.com/", search: "https://ko.aliexpress.com/w/wholesale-" },
-      { name: "쇼핑검색-아마존(한글,영어)", home: "https://www.amazon.com/", search: "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=" },
-      { name: "쇼핑검색-이베이(한글,영어)", home: "https://www.ebay.com/", search: "https://www.ebay.com/sch/i.html?_from=R40&_trksid=p2050601.m570.l1313&_nkw=" },
-      { name: "영어사전-정의", home: "https://www.google.co.uk/webhp?hl=ko&gl=uk", search: "https://www.google.co.uk/search?hl=ko&gl=uk&q=Define+" },
-      { name: "영어사전-반의어", home: "https://www.google.co.uk/webhp?hl=ko&gl=uk", search: "https://www.google.co.uk/search?hl=ko&gl=uk&q=" },
-      { name: "영문법검사기", home: "https://virtualwritingtutor.com/", search: "https://www.google.co.uk/search?hl=ko&gl=uk&q=" },
-      { name: "영문법검사기2", home: "https://www.gingersoftware.com/grammarcheck/", search: "https://www.google.co.uk/search?hl=ko&gl=uk&q=" },
-      { name: "영어사전-유의어", home: "https://www.google.co.uk/webhp?hl=ko&gl=uk", search: "https://www.google.co.uk/search?hl=ko&gl=uk&q=" },
-      { name: "영어사전-어원", home: "https://www.google.co.uk/webhp?hl=ko&gl=uk", search: "https://www.google.co.uk/search?hl=ko&gl=uk&q=" },
-      { name: "번역기-영어한글입력", home: "https://translate.google.co.uk/", search: "https://translate.google.co.uk/?sl=ko&tl=en&text=" },
-      { name: "사이트번역-주소입력", home: "https://papago.naver.net", search: "https://papago.naver.net/website?locale=ko&source=en&target=ko&url=" },
-      { name: "영어이름변경", home: "https://www.passport.go.kr/home/kor/romanizeAutomatic/index.do?menuPos=38", search: "https://www.passport.go.kr/home/kor/romanizeAutomatic/index.do?menuPos=38&idx=&act=&searchKeyword=" },
-      { name: "우편번호검색", home: "https://search.naver.com/search.naver?sm=tab_hty.top&where=nexearch&ie=utf8&query=%EC%9A%B0%EC%B2%B4%EA%B5%AD+%EC%9A%B0%ED%8E%B8%EB%B2%88%ED%98%B8&where=nexearch", search: "https://www.juso.go.kr/support/AddressMainSearch.do?searchKeyword=" },
-      { name: "드라마검색-마루TV", home: "https://marutv.io", search: "https://marutv.io//search.html?keyword=" },
-      { name: "전화번호검색-114", home: "https://www.114.co.kr", search: "https://www.114.co.kr/search/result/all?query=" },
-      { name: "한자검색-네이버 ", home: "http://hanja.naver.com", search: "http://hanja.naver.com/search?query=" },
-      { name: "동영상검색-afreecatv", home: "https://www.afreecatv.com/", search: "https://www.afreecatv.com/total_search.html?szKeyword=" },
-      { name: "동영상검색-TVCAST", home: "https://tvcast.naver.com/", search: "https://tv.naver.com/search?query=" },
-      { name: "동영상검색-KAKAOTV", home: "https://tv.kakao.com/", search: "https://tv.kakao.com/search?q=" },
-      { name: "동영상검색-Vimeo", home: "https://www.vimeo.com", search: "https://vimeo.com/search?q=" },
-      { name: "통합검색-MS-EDGEstore", home: "https://microsoftedge.microsoft.com", search: "https://microsoftedge.microsoft.com/addons/search/" },
-      { name: "통합검색-크롬웹스토어", home: "https://chrome.google.com/webstore/category/extensions?hl=ko", search: "https://chrome.google.com/webstore/search/" },
-      { name: "통합검색-네이버자료실", home: "https://software.naver.com", search: "https://software.naver.com/search.nhn?query=" },
-      { name: "서적검색-교보문고", home: "https://search.kyobobook.co.kr", search: "https://search.kyobobook.co.kr/web/search?vPstrKeyWord=" },
-      { name: "서적검색-알라딘", home: "https://search.kyobobook.co.kr", search: "https://www.aladin.co.kr/search/wsearchresult.aspx?SearchTarget=All&SearchWord=" },
-      { name: "통합검색-Yahoo", home: "https://www.yahoo.com", search: "https://search.yahoo.com/search;_ylt=Ar5458YY5y_GWWeBR2VSqUubvZx4?p=" },
-      { name: "SNS검색-Twitter", home: "https://twitter.com", search: "https://twitter.com/search?q=" },
-      { name: "SNS검색-instagram", home: "https://www.instagram.com", search: "https://www.instagram.com/explore/tags/" },
-      { name: "SNS검색-kakao.com", home: "https://story.kakao.com", search: "https://story.kakao.com/hashtag/" },
-      { name: "SNS검색-Tumblr", home: "https://www.tumblr.com", search: "https://www.tumblr.com/search/" },
-      { name: "SNS검색-tiktok", home: "https://www.tiktok.com", search: "https://www.tiktok.com/search?q=" },
-      { name: "SNS검색-Pinterest ", home: "https://pinterest.com", search: "https://pinterest.com/search/?q=" },
-      { name: "음악검색-네이버", home: "https://music.naver.com", search: "https://music.naver.com/search/search.nhn?query=" },
-      { name: "음악검색-멜론", home: "https://www.melon.com", search: "https://www.melon.com/search/total/index.htm?q=" },
-      { name: "음악검색-벅스", home: "https://bugs.co.kr", search: "https://music.bugs.co.kr/search/integrated?q=" },
-      { name: "음악검색-Sonshub", home: "https://sonshub.co", search: "https://sonshub.co/?s=" },
-      { name: "만화검색-stoon1", home: "https://stoon1.com/webtoon/index/11", search: "https://stoon1.com/search?skeyword=" },
-      { name: "만화검색-skytoon1", home: "https://www.skytoon1.com/webtoon/index/11", search: "https://www.skytoon1.com/search?skeyword=" }
-    ];
-    function HandleForm(form) {
-      var idx = form.service.selectedIndex - 1;
-      if (idx < 0) { alert("검색엔진을 선택하세요."); return false; }
-      var q = form.query.value.trim();
-      var eng = snarkEngines[idx];
-      var url = q ? (eng.search + encodeURIComponent(q)) : eng.home;
-      window.open(url, '_blank');
-    }
-    function showScreen(idx) {
-      var btns = document.querySelectorAll('.screen-btn');
-      btns.forEach((btn, i) => {
-        if (i === idx - 1) btn.classList.add('active');
-        else btn.classList.remove('active');
-      });
-      for (let i = 1; i <= 7; i++) {
-        document.getElementById('screen-block-' + i).classList.remove('active');
-      }
-      document.getElementById('screen-block-' + idx).classList.add('active');
-    }
-    // -------- 갤러리 예시 데이터 --------
-    var shadowSrc = "https://64.media.tumblr.com/f5f06009df6584ebb5539cad61f73c63/tumblr_inline_qsghz3XZRQ1r45nlo_500.png";
-
-
-
-    var items1 = [
-
-  { url: "https://www.naver.com/", img: "https://64.media.tumblr.com/1bf9e5deea1a7c6908412854a41eef17/tumblr_inline_njsurfLN801r45nlo.jpg" },
-  { url: "https://duckduckgo.com/", img: "https://64.media.tumblr.com/97d8ef070851c4eba1a490004157b396/tumblr_inline_qtmyixNWhk1r45nlo_500.jpg" },
-  { url: "https://yandex.com/", img: "https://64.media.tumblr.com/f41ba3cab449283ec3dc15fc8827d42f/tumblr_inline_riw323wnoZ1y2l0i6_500.jpg" },
-  { url: "https://www.google.com.au/webhp?hl=en&gl=au", img: "https://64.media.tumblr.com/142f0d5149882bc05ab0a71ac01e5da1/tumblr_inline_njsurwZm6N1r45nlo.jpg" },
-  { url: "https://www.bing.com/", img: "https://64.media.tumblr.com/c70980baa79022ccbcc5a11c02f5b160/tumblr_inline_rl7s9sCOJe1r45nlo_500.jpg" },
-  { url: "https://www.daum.net/", img: "https://64.media.tumblr.com/96a2239c7a7e304051c9a4227e2c56f8/tumblr_inline_njsurm4hmm1r45nlo.jpg" },
-
-  { url: "https://newsstand.naver.com/", img: "https://64.media.tumblr.com/9cc8a42dbefc33638e7379f08618e909/tumblr_inline_nk1q10gL6H1r45nlo.jpg" },
-  { url: "https://www.youtube.com/", img: "https://64.media.tumblr.com/62703d3e8e5681a75657d70e8d861a78/tumblr_inline_njsuszq8Nk1r45nlo.jpg" },
-  { url: "https://www.tiktok.com/", img: "https://64.media.tumblr.com/a6f129ad442d0a5b7e4df6ff0aafeed2/tumblr_inline_rizwgtFWJL1y2l0i6_500.jpg" },
-  { url: "https://www.youtube.com/shorts", img: "https://64.media.tumblr.com/a35c8f0cff871b6594e65767e73c03cc/tumblr_inline_rj02kmhZm31y2l0i6_500.jpg" },
-  { url: "https://chat.openai.com/chat", img: "https://64.media.tumblr.com/80f657278cf3dbe0376f834307a93770/tumblr_inline_rqk2r1je4U1r45nlo_500.jpg" },
-  { url: "https://www.msn.com/ko-kr/news", img: "https://64.media.tumblr.com/4951a56b301072eb889e377e4db99137/tumblr_inline_qqz9rrBbmp1r45nlo_500.jpg" },
-
-  { url: "https://www.chosun.com/", img: "https://64.media.tumblr.com/5643c6c37fb35affc16842d7594f89d6/tumblr_inline_njsdnxNixE1r45nlo.jpg" },
-  { url: "https://www.joongang.co.kr/", img: "https://64.media.tumblr.com/3d60382d1fb5e6125c4532bb2e275fcb/tumblr_inline_njsdoa3KBr1r45nlo.jpg" },
-  { url: "https://www.donga.com/", img: "https://64.media.tumblr.com/9e3b661479adc6675f0d314242493684/tumblr_inline_njsdotvoqd1r45nlo.jpg" },
-  { url: "http://www.hani.co.kr/", img: "https://64.media.tumblr.com/5ffdb2f7afcf233603b8a378ecce0aab/tumblr_inline_njsdzzB7fG1r45nlo.jpg" },
-  { url: "http://www.ohmynews.com/", img: "https://64.media.tumblr.com/4b5bc31c12f96ba8b8af1925372eb7db/tumblr_inline_njww7oc7TN1r45nlo.jpg" },
-  { url: "https://www.yna.co.kr/", img: "https://64.media.tumblr.com/200e985063098907cf27f668196da1ec/tumblr_inline_njsdpj5N541r45nlo.jpg" },
-
-  { url: "https://news.kbs.co.kr/common/main.html", img: "https://64.media.tumblr.com/ed9ed862d93b18fe0ed0173806905b07/tumblr_inline_njsdfjpVHw1r45nlo.jpg" },
-  { url: "https://imnews.imbc.com/pc_main.html", img: "https://64.media.tumblr.com/2828d1450c7b5d1781014819689d19c4/tumblr_inline_njsdfy3B4r1r45nlo.jpg" },
-  { url: "https://news.sbs.co.kr/news/newsMain.do", img: "https://64.media.tumblr.com/6e87f1790824c1410fcd9eda12f1f52f/tumblr_inline_njsdgbgTft1r45nlo.jpg" },
-  { url: "https://news.jtbc.joins.com/?cloc=jtbc%7Cheader%7Cnews", img: "https://64.media.tumblr.com/120ba4936448de2dc2602387eb579763/tumblr_inline_njsdqm7SpP1r45nlo.jpg" },
-  { url: "https://ytn.co.kr/", img: "https://64.media.tumblr.com/09bd092d103870a4990c49049c3c86ed/tumblr_inline_nk1vta6fLb1r45nlo.jpg" },
-  { url: "https://www.mbn.co.kr/pages/news/", img: "https://64.media.tumblr.com/0525011c66b260a7dde72dd34cd8d749/tumblr_inline_njsdh47xtT1r45nlo.jpg" },
-
-  { url: "http://it.chosun.com/", img: "https://64.media.tumblr.com/a4c4b76f74437dfbb2ba2c676dbe9a15/tumblr_inline_qr0mun7bJp1r45nlo_500.jpg" },
-  { url: "https://it.donga.com/", img: "https://64.media.tumblr.com/6c3dfa61c93a30fc145efb6267eb9681/tumblr_inline_qr0mpuxAx81r45nlo_500.jpg" },
-  { url: "http://www.dt.co.kr/", img: "https://64.media.tumblr.com/1906d186e1746c103757d1b75be69ae0/tumblr_inline_qr0mq3xqlY1r45nlo_500.jpg" },
-  { url: "https://www.etnews.com/", img: "https://64.media.tumblr.com/a0392df9a1bca32f9dce28525e90ce08/tumblr_inline_njsdvwQPjl1r45nlo.jpg" },
-  { url: "https://zdnet.co.kr/", img: "https://64.media.tumblr.com/4ff558094100970e37e242693d84cf85/tumblr_inline_njsdvjaJez1r45nlo.jpg" },
-  { url: "https://www.bloter.net/", img: "https://64.media.tumblr.com/c37fc1b0d498c1d546938b0fcdff2a86/tumblr_inline_qr0mos2CV71r45nlo_500.jpg" },
-
-  { url: "http://www.sportsseoul.com/", img: "https://64.media.tumblr.com/76ddd37ad2216270d3c087ff56d0cdd4/tumblr_inline_njsdrq6Unh1r45nlo.jpg" },
-  { url: "https://sports.chosun.com/", img: "https://64.media.tumblr.com/fa1579c4b1eaef547e1d97b8066924c3/tumblr_inline_njsdsnoDWg1r45nlo.jpg" },
-  { url: "https://www.stoo.com/", img: "https://64.media.tumblr.com/67c98457e746e99806a7fbb1ad5bacea/tumblr_inline_njsdrb9xKW1r45nlo.jpg" },
-  { url: "http://isplus.joins.com/", img: "https://64.media.tumblr.com/62a623c477a1b7ce3e0399343d209c1b/tumblr_inline_njsds9gyP41r45nlo.jpg" },
-  { url: "https://sports.donga.com/", img: "https://64.media.tumblr.com/3ae8922c117f6e8e8ee3cf69d1b8bf24/tumblr_inline_njsdua5bvb1r45nlo.jpg" },
-  { url: "https://www.dispatch.co.kr/", img: "https://64.media.tumblr.com/41827085cffa3d4435b1e00a9c45fe0b/tumblr_inline_qsbozxvSe31r45nlo_500.jpg" },
-  { url: "https://www.ilbe.com/", img: "https://64.media.tumblr.com/f87089b786663fd984959a2041d8f80f/tumblr_inline_njswv3kCgU1r45nlo.jpg" },
-  { url: "https://bbs.ruliweb.com/best/humor/now?orderby=readcount&range=7d", img: "https://64.media.tumblr.com/97e872c64ceca83c106a6cc455b93ef2/tumblr_inline_qsb08g0QCE1r45nlo_500.jpg" },
-  { url: "http://bhu.co.kr/bbs/hot.php", img: "https://64.media.tumblr.com/c86c0f38083b1206cb1cbb47abfaf49a/tumblr_inline_qsb04sBh2s1r45nlo_500.jpg" },
-  { url: "https://www.bobaedream.co.kr/list?code=freeb", img: "https://64.media.tumblr.com/3b952bb6f94775e5a470edb39edd231b/tumblr_inline_njswwdRBX11r45nlo.jpg" },
-  { url: "https://pann.nate.com/", img: "https://64.media.tumblr.com/174c55dc3719ff93ebef07272096c436/tumblr_inline_njswvnJBgk1r45nlo.jpg" },
-  { url: "http://www.todayhumor.co.kr/board/hold/list.php", img: "https://64.media.tumblr.com/87064417fb46a809da0a00efeb31b6a5/tumblr_inline_njswvw5Tky1r45nlo.jpg" },
-
-  { url: "http://rgo4.com/free", img: "https://64.media.tumblr.com/e11c7ac63a2faa9db4d09512a7145c18/tumblr_inline_qsb0bh6RfA1r45nlo_500.jpg" },
-  { url: "https://www.jol-jam.com/", img: "https://64.media.tumblr.com/4173bf4a7352e4607c56dd977d9f2c23/tumblr_inline_qsb0geGOlw1r45nlo_500.jpg" },
-  { url: "http://www.ppomppu.co.kr/zboard/zboard.php?id=f1020", img: "https://64.media.tumblr.com/3527c8022ca44fadb4c9c4c5b24a64c9/tumblr_inline_njsx16siD01r45nlo.jpg" },
-  { url: "https://www.missycoupons.com/zero/board.php#id=general", img: "https://64.media.tumblr.com/64fee60e130d1983dc5005ff59d4c79c/tumblr_inline_qsf3ar6uYs1r45nlo_500.jpg" },
-  { url: "https://www.dcinside.com/", img: "https://64.media.tumblr.com/d114c61309cc431a272627d31e329f58/tumblr_inline_njsuxe53wK1r45nlo.jpg" },
-  { url: "http://web.humoruniv.com/main.html", img: "https://64.media.tumblr.com/49dffdb2fc50fae80bdcf8be5691cfb3/tumblr_inline_qsaui8fN7A1r45nlo_500.jpg" },
-
-  { url: "https://www.inven.co.kr/board/webzine/2097?iskin=webzine", img: "https://64.media.tumblr.com/7eb9a362ebe6576621a0d5e3b62d4656/tumblr_inline_qtbr70QaXE1r45nlo_500.jpg" },
-  { url: "https://www.instiz.net/pt?srt=3#greentop", img: "https://64.media.tumblr.com/05bed7b2fe6c494aec02ca45508ce3e9/tumblr_inline_qtbt5cG5pm1r45nlo_500.jpg" },
-  { url: "https://theqoo.net/hot?filter_mode=normal", img: "https://64.media.tumblr.com/f50f1c0b0dc0b452b17043a5ebaa2d7e/tumblr_inline_qtl5dukCre1r45nlo_500.jpg" },
-  { url: "https://www.82cook.com/entiz/enti.php?bn=15", img: "https://64.media.tumblr.com/d50a440ff876f59e16976f9f59883186/tumblr_inline_qtniggYbtg1r45nlo_500.jpg" },
-  { url: "https://www.clien.net/service/recommend", img: "https://64.media.tumblr.com/29b8f22b9718f3507f1f7c5fd442d7d3/tumblr_inline_qtnhftb2Co1r45nlo_500.jpg" },
-  { url: "https://www.fmkorea.com/", img: "https://64.media.tumblr.com/237edabb856f09d9ad9afb78c1058dc7/tumblr_inline_qtnhg1ezWQ1r45nlo_500.jpg" },
-
-  { url: "http://mlbpark.donga.com/mp/b.php?p=1&m=list&b=mlbtown&query=&select=&user=", img: "https://64.media.tumblr.com/493f7dc96a0a38181e760e00c93ab7c8/tumblr_inline_qtnhqyK49h1r45nlo_500.jpg" },
-  { url: "http://www.slrclub.com/bbs/zboard.php?id=free", img: "https://64.media.tumblr.com/7db779fc7ab3e23c0e7987075b3105ab/tumblr_inline_qtnhvmcVnB1r45nlo_500.jpg" },
-  { url: "http://www.gasengi.com/main/board.php?bo_table=commu08", img: "https://64.media.tumblr.com/d11e20191f52fe18517d35f50677ccd9/tumblr_inline_qtnicngyk11r45nlo_500.jpg" },
-  { url: "http://www.etoland.co.kr/bbs/board.php?bo_table=hit", img: "https://64.media.tumblr.com/fa87803dc91d9f2d2eacfe7374ad9d86/tumblr_inline_qtni0iPGZ71r45nlo_500.jpg" },
-  { url: "https://www.ygosu.com/community/best_article/?type=daily", img: "https://64.media.tumblr.com/7da5d9057926a944c5535cb76fe21d89/tumblr_inline_qtni6rEBAI1r45nlo_500.jpg" },
-  { url: "https://www.dogdrip.net/?mid=dogdrip&sort_index=popular", img: "https://64.media.tumblr.com/da499d2597e69a002e784f430971e851/tumblr_inline_qtni9mI7cl1r45nlo_500.jpg" },
-
-  { url: "https://www1.president.go.kr/petitions", img: "https://64.media.tumblr.com/9ae15d2818e781a46af41e60963f1b02/tumblr_inline_qqzai352iv1r45nlo_500.jpg" },
-  { url: "https://www.theminjoo.kr/", img: "https://64.media.tumblr.com/0173aa6497006346f5b96ffe022e4a89/tumblr_inline_qr0eskDoFu1r45nlo_500.jpg" },
-  { url: "http://www.peoplepowerparty.kr/renewal/talk/talk.do", img: "https://64.media.tumblr.com/10e4d1cfe7dae6421fc369ff66fb49e3/tumblr_inline_qr0esrK1ZL1r45nlo_500.jpg" },
-  { url: "http://www.justice21.org/newhome/board/board.html?bbs_code=JS148", img: "https://64.media.tumblr.com/71dd16aaa9ea32e496d6fa4028aaee39/tumblr_inline_qr0esyvf8s1r45nlo_500.jpg" },
-  { url: "https://www.ilbe.com/list/politics", img: "https://64.media.tumblr.com/0fd06d1e84140b6195f09702c7d3e8b2/tumblr_inline_qsb5v5hBc91r45nlo_500.jpg" },
-  { url: "http://www.hhiun.or.kr/FreeBoard", img: "https://64.media.tumblr.com/c906e951b1863006771a0bf8fc93a652/tumblr_inline_qr0ft8zCEt1r45nlo_500.jpg" },
-    ];
-
-
-
-
-
-
-
-
-    var items2 = [
-  { url: "https://www.youtube.com/playlist?list=PLU12uITxBEPGpEPrYAxJvNDP6Ugx2jmUx", img: "https://64.media.tumblr.com/2e4c845ac1a46598a83b6872a85d986f/tumblr_inline_qr62newSap1r45nlo_500.jpg" },
-  { url: "https://www.wavve.com/live/index.html", img: "https://64.media.tumblr.com/2189d70a9d043e35abd0da0795368db1/tumblr_inline_qr9rdcj5Gw1r45nlo_500.jpg" },
-  { url: "https://www.afreecatv.com/", img: "https://64.media.tumblr.com/50e085a5c21801bcbf82f2a329b8d427/tumblr_inline_qr5ags5Pq51r45nlo_500.jpg" },
-  { url: "https://sportshub.stream/baseball-live-streamz/", img: "https://64.media.tumblr.com/7ab26e8bf532d3f67eddf68af156b0bd/tumblr_inline_riw5cynx2c1y2l0i6_500.jpg" },
-  { url: "https://tv.kakao.com/live", img: "https://64.media.tumblr.com/ad34a8a06c7f2a6d49d0eca6ab75307a/tumblr_inline_qr5al8LGBG1r45nlo_500.jpg" },
-  { url: "https://tv.naver.com/l/livehome", img: "https://64.media.tumblr.com/32bab5d7c4db1f90a078262949bc66aa/tumblr_inline_qr5achQfT31r45nlo_500.jpg" },
-  // 2줄
-  { url: "https://onair.kbs.co.kr/index.html?sname=onair&stype=live&ch_code=11&ch_type=globalList", img: "https://64.media.tumblr.com/3dfd628e3dd3732521f9f5cc4b673e23/tumblr_inline_qr495jheQy1r45nlo_500.jpg" },
-  { url: "https://onair.kbs.co.kr/index.html?sname=onair&stype=live&ch_code=12&ch_type=globalList", img: "https://64.media.tumblr.com/b265cd8ad8795c0a4a0038e0155a5484/tumblr_inline_qr495pqaQM1r45nlo_500.jpg" },
-  { url: "https://play.sbs.co.kr/onair/pc/index.html?id=S01", img: "https://64.media.tumblr.com/b87dd445764b87d10675c626c3b24bfd/tumblr_inline_qr630dge1t1r45nlo_500.jpg" },
-  { url: "http://onair.imbc.com/", img: "https://64.media.tumblr.com/2828d1450c7b5d1781014819689d19c4/tumblr_inline_njsdfy3B4r1r45nlo.jpg" },
-  { url: "https://www.twitch.tv/", img: "https://64.media.tumblr.com/76994463eff7f663a451d48c3051a644/tumblr_inline_rj7sajI3371r45nlo_500.jpg" },
-  { url: "http://www.ichannela.com/com/cmm/onair.do", img: "https://64.media.tumblr.com/492e6b1ccdda41793234756a36808296/tumblr_inline_qr6s8va9vE1r45nlo_500.jpg" },
-  // 3줄
-  { url: "http://broadcast.tvchosun.com/onair/on.cstv", img: "https://64.media.tumblr.com/3c9da0d2f7a6731574fbd704e82f6c28/tumblr_inline_qr6iisiuEn1r45nlo_500.jpg" },
-  { url: "https://www.mbn.co.kr/vod/onair", img: "https://64.media.tumblr.com/2c30a5b9490fe98b1c628a2f8427433d/tumblr_inline_qr6o97Jr7e1r45nlo_500.jpg" },
-  { url: "https://www.ytn.co.kr/_hd/hd_live.html", img: "https://64.media.tumblr.com/a834d5c65162ebdc2b1cbc9a8daf6d57/tumblr_inline_qr63ooBx2g1r45nlo_500.jpg" },
-  { url: "https://www.yonhapnewstv.co.kr/live", img: "https://64.media.tumblr.com/e716c47503f2fb1f0b5f7642d0ebda14/tumblr_inline_qr6irxGBMz1r45nlo_500.jpg" },
-  { url: "https://tbs.seoul.kr/tv/index.do", img: "https://64.media.tumblr.com/960dc403fc341dc8c481f99f89c997dc/tumblr_inline_qr6n7l27YR1r45nlo_500.jpg" },
-  { url: "https://www.arirang.com/", img: "https://64.media.tumblr.com/34b7502c6c4511f8667416c9199bda6c/tumblr_inline_qsm7z6gViT1r45nlo_500.jpg" },
-    ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-    var items3 = [
-  { url: "http://www.auction.co.kr/", img: "https://64.media.tumblr.com/e97d9391e0aeefcb82d1fb7bfe8748a5/tumblr_inline_njqty4XgTA1r45nlo.jpg" },
-  { url: "http://www.gmarket.co.kr/", img: "https://64.media.tumblr.com/4b13568a56efb8c2f9b51b8d3c5bface/tumblr_inline_njqu1l7g9v1r45nlo.jpg" },
-  { url: "http://shopping.naver.com/", img: "https://64.media.tumblr.com/75aaf70369c882c5ca9800a0e8d7ee49/tumblr_inline_njqu3tdsp51r45nlo.jpg" },
-  { url: "http://www.ticketmonster.co.kr/", img: "https://64.media.tumblr.com/7a861567f56b6167ac3cf236442c3e45/tumblr_inline_njqtvohy6M1r45nlo.jpg" },
-  { url: "http://www.coupang.com/", img: "https://64.media.tumblr.com/dba60d034faf5bea0da92a10c9b66b6c/tumblr_inline_njqtoiQ8kj1r45nlo.jpg" },
-  { url: "http://www.coocha.co.kr/", img: "https://64.media.tumblr.com/f96c720f75d92ac3aa1769752b8704d0/tumblr_inline_njqtqs9Vjv1r45nlo.jpg" },
-  // 2줄
-  { url: "http://www.cookey.co.kr/", img: "https://64.media.tumblr.com/3564018146261c3fd68a28f3863a1d81/tumblr_inline_njqu6yhiqB1r45nlo.jpg" },
-  { url: "http://cafe.naver.com/joonggonara/", img: "https://64.media.tumblr.com/f72a60b61ef5513f37c839fb2bd092f9/tumblr_inline_njqttdcF931r45nlo.jpg" },
-  { url: "http://www.danawa.com/", img: "https://64.media.tumblr.com/41d8eeb275e7ee47d654d3ed4e4935ff/tumblr_inline_njqu8uYAD21r45nlo.jpg" },
-  { url: "http://www.wemakeprice.com/", img: "https://64.media.tumblr.com/328c1f4d3935e7c939974d441ae1493f/tumblr_inline_njqbf4XvCH1r45nlo.jpg" },
-  { url: "https://www.kurly.com/", img: "https://64.media.tumblr.com/40a30221aa02aa592d6fbcf3c2f6bc62/tumblr_inline_qqzaz4jntV1r45nlo_500.jpg" },
-  // 3줄
-  { url: "http://127beauty.tumblr.com/", img: "https://64.media.tumblr.com/c4b5ac96eda4d7f83fc5afa1f0efeebe/tumblr_inline_njsi1pzLsg1r45nlo.jpg" },
-  { url: "http://koreajeans2.tumblr.com/", img: "https://64.media.tumblr.com/82801a6937ab26eaa3aa343b2f212449/tumblr_inline_njquq2tsKW1r45nlo.jpg" },
-  { url: "http://koreafood.tumblr.com/", img: "https://64.media.tumblr.com/cb9e30ce04136ec6018af6c8e31460a0/tumblr_inline_njsh8fHGqL1r45nlo.jpg" },
-  { url: "https://k-goods.tumblr.com/", img: "https://64.media.tumblr.com/88ffbb96981edae4ec59dcc1d08eb32d/tumblr_inline_qu1o24Dvak1r45nlo_500.jpg" },
-  { url: "http://car0070.tumblr.com/", img: "https://64.media.tumblr.com/5610baec5b266516d2e3374b97ae47d3/tumblr_inline_njva1djLKg1r45nlo.jpg" },
-  { url: "http://123travelshop.tumblr.com/", img: "https://64.media.tumblr.com/50cc3a58851dc52fecc39f0bf9a09c67/tumblr_inline_njsim8syyI1r45nlo.jpg" },
-  // 4줄
-  { url: "http://mall.epost.go.kr/", img: "https://64.media.tumblr.com/a8cd7aa68a6fc6330a707cadd75ac2b1/tumblr_inline_njqwdlwgnw1r45nlo.jpg" },
-  { url: "http://shinsegaemall.ssg.com/", img: "https://64.media.tumblr.com/662b02874f2a056cd9ea38a91179b541/tumblr_inline_njqwlvgGDq1r45nlo.jpg" },
-  { url: "http://www.akmall.com/", img: "https://64.media.tumblr.com/c069d6feea845f28c8dd8a376b61613c/tumblr_inline_njqwor4I6Q1r45nlo.jpg" },
-  { url: "http://www.lottemart.com/", img: "https://64.media.tumblr.com/8461f4af99fe8dae76bee21cb02beb2a/tumblr_inline_njqrscKllr1r45nlo.jpg" },
-  { url: "http://www.gsshop.com/", img: "https://64.media.tumblr.com/42c3514f44d11ec02646dcba386143c0/tumblr_inline_njqrwz5iHs1r45nlo.jpg" },
-  { url: "http://www.hyundaihmall.com/Home.html", img: "https://64.media.tumblr.com/dce9ea401086940522aa92957530ee07/tumblr_inline_njqrzaf4Bf1r45nlo.jpg" },
-  // 5줄
-  { url: "http://www.cjmall.com/", img: "https://64.media.tumblr.com/750e1f8d5a644de2a9f4491c8121af45/tumblr_inline_njqs1rBbgE1r45nlo.jpg" },
-  { url: "http://www.11st.co.kr/", img: "https://64.media.tumblr.com/f2b4251ec6e55fb8916ed9e65dfe8318/tumblr_inline_njqs824PoM1r45nlo.jpg" },
-  { url: "http://www.interpark.com/", img: "https://64.media.tumblr.com/1f6ee9dcd80cc667afa8320b8eaebecd/tumblr_inline_njqs9vJPLq1r45nlo.jpg" },
-  { url: "http://www.nsmall.com/", img: "https://64.media.tumblr.com/38fce037bf4793618957af2719a16d5c/tumblr_inline_njqscaWlDk1r45nlo.jpg" },
-  { url: "http://www.lotteimall.com/main/viewMain.lotte?dpml_no=6&tlog=18000_3", img: "https://64.media.tumblr.com/b09dd4fa1435985f62f06f7c5f55fc4c/tumblr_inline_njqseifbt91r45nlo.jpg" },
-  { url: "http://www.ebay.com/", img: "https://64.media.tumblr.com/c60485de432ae65dd3c090d98943d12f/tumblr_inline_njsv0dLVqm1r45nlo.jpg" },
-  // 6줄
-  { url: "http://www.homeplus.co.kr/", img: "https://64.media.tumblr.com/d39f881c701c0e2c2b9517f82cbf7155/tumblr_inline_njqsj0t0kl1r45nlo.jpg" },
-  { url: "http://emart.ssg.com/", img: "https://64.media.tumblr.com/02620229244bf887005f6218ebe1e974/tumblr_inline_njqtizbhJM1r45nlo.jpg" },
-  { url: "http://www.akmall.com/", img: "https://64.media.tumblr.com/c069d6feea845f28c8dd8a376b61613c/tumblr_inline_njqwor4I6Q1r45nlo.jpg" },
-  { url: "http://www.lottemart.com/", img: "https://64.media.tumblr.com/8461f4af99fe8dae76bee21cb02beb2a/tumblr_inline_njqrscKllr1r45nlo.jpg" },
-  { url: "http://www.gsshop.com/", img: "https://64.media.tumblr.com/42c3514f44d11ec02646dcba386143c0/tumblr_inline_njqrwz5iHs1r45nlo.jpg" },
-  { url: "http://www.hyundaihmall.com/Home.html", img: "https://64.media.tumblr.com/dce9ea401086940522aa92957530ee07/tumblr_inline_njqrzaf4Bf1r45nlo.jpg" },
-    ];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    var items4 = [
-  { url: "http://www.allurekorea.com/", img: "https://64.media.tumblr.com/5a097048470fe45a4b30c4e5f4e097a8/tumblr_inline_qqnwhh0G5P1r45nlo_500.jpg" },
-  { url: "https://woman.donga.com/", img: "https://64.media.tumblr.com/1aa90add760dfa7d745de3c2bd83ed57/tumblr_inline_qqnwi4R5op1r45nlo_500.jpg" },
-  { url: "https://woman.chosun.com/", img: "https://64.media.tumblr.com/abbfa122d7a891c5589a089bd22efe3c/tumblr_inline_qqnwhsRTHe1r45nlo_500.jpg" },
-  { url: "https://www.marieclairekorea.com/", img: "https://64.media.tumblr.com/c10d2bfa1a48856fc48f0f45ef70ce48/tumblr_inline_qqnwieFvDM1r45nlo_500.jpg" },
-  { url: "https://www.elle.co.kr/", img: "https://64.media.tumblr.com/4be85c7d3a25826a6655d17abc3a1ae7/tumblr_inline_qqnwh4OVJR1r45nlo_500.jpg" },
-  { url: "http://www.vogue.co.kr/", img: "https://64.media.tumblr.com/092423914d1c95aeef9c32d4cf0c8ab2/tumblr_inline_qqnwizjbF31r45nlo_500.jpg" },
-
-  { url: "https://m.thesingle.co.kr/SinglesMobile/mobileweb/index.do", img: "https://64.media.tumblr.com/bebebd9bc0a8e8ea2ec9237f957ee771/tumblr_inline_qqnwlkbuex1r45nlo_500.jpg" },
-  { url: "http://www.wkorea.com/", img: "https://64.media.tumblr.com/8f0ee741fe804e196637f83197b56bb3/tumblr_inline_qqnwqhSGWe1r45nlo_500.jpg" },
-  { url: "http://www.gqkorea.co.kr/", img: "https://64.media.tumblr.com/1d23d3c5c2f444d8811b086065463684/tumblr_inline_qqnwqvbNXR1r45nlo_500.jpg" },
-  { url: "https://www.maximkorea.net/", img: "https://64.media.tumblr.com/6e300ad67dbcaf812587e47153961cd7/tumblr_inline_qqnwrkQ0ko1r45nlo_500.jpg" },
-  { url: "https://www.smlounge.co.kr/arena", img: "https://64.media.tumblr.com/e483e9ea3a7340c69eaed1ab3be59000/tumblr_inline_qqnwsjhN1a1r45nlo_500.jpg" },
-  { url: "https://www.cosmopolitan.co.kr/", img: "https://64.media.tumblr.com/cd51a1d78fc0da8f5b52cc5a5167a5dc/tumblr_inline_qr2waqBr5u1r45nlo_500.jpg" },
-
-  { url: "https://www.smlounge.co.kr/woman", img: "https://www.smlounge.co.kr/upload/NPFILE/202104/450727.jpg" },
-  { url: "https://www.harpersbazaar.co.kr/", img: "https://image.aladin.co.kr/product/12660/32/cover500/k172532170_1.jpg" },
-  { url: "https://www.cosmopolitan.co.kr/", img: "https://64.media.tumblr.com/cd51a1d78fc0da8f5b52cc5a5167a5dc/tumblr_inline_qr2waqBr5u1r45nlo_500.jpg" },
-
-    ];
-
-
-
-
-
-
-
-    function fillGallery(gridId, items) {
-      var grid = document.getElementById(gridId);
-      grid.innerHTML = items.map(item =>
-        `<div class="img-cell">
-          <a href="${item.url}" target="_blank" class="img-frame">
-            <img src="${item.img}" alt="">
-          </a>
-          <img class="shadow-line" src="${shadowSrc}" alt="">
-        </div>`
-      ).join('');
-    }
-    fillGallery("gallery1", items1);
-    fillGallery("gallery2", items2);
-    fillGallery("gallery3", items3);
-    fillGallery("gallery4", items4);
   </script>
 </body>
 </html>
