@@ -1,4 +1,5 @@
- <html lang="ko">
+ <!DOCTYPE html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
  <title>MYCAR.KR: 멀티검색, 나만의 디스플레이, 즐겨찾기</title>
@@ -6,7 +7,7 @@
 <meta property="og:description" content="멀티검색, 나만의 디스플레이, 즐겨찾기,한국의 정보모음, Korea travel information, MYWAY.KR" />
 <meta property="og:url" content="https://myway.kr" />
   <meta property="og:type" content="website" />
-<meta property="og:image" content="https://myway.kr/mywaylogo.png" /> <!-- 사이트 대표 썸네일 이미지 경로 -->
+<meta property="og:image" content="https://myway.kr/mywaylogo.png" />
 <meta name="description" content="멀티검색, 나만의 디스플레이,즐겨찾기, 한국의 정보모음,썸네일 추출기, Korea travel information, MYWAY.KR" />
   <meta name="naver-site-verification" content="4e88b51e170829dfb01ce587eaf5575804dd5a2" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -77,6 +78,7 @@
       text-align: center;
       margin-top: 3px;
       margin-bottom: 0;
+      /* 모바일에서 가로 스크롤/줄바꿈 방지용 추가 - 기본값은 유지 */
     }
     .screen-links a {
       display: inline-block;
@@ -91,6 +93,7 @@
       border-radius: 14px;
       letter-spacing: 0.02em;
       line-height: 1.58;
+      white-space: nowrap; /* 버튼 줄바꿈 방지 */
     }
     .screen-links a:hover, .screen-links a.active {
       color: #fff;
@@ -112,12 +115,40 @@
       overflow: hidden !important;
       transition: none;
     }
+
+    /* ------------- 모바일(세로)에서만 추가되는 부분 ------------- */
     @media (max-width: 700px) {
-      .searchbar-form { min-width: 0; width: 98%; height: 36px; }
-      .searchbar-select, .searchbar-input, .searchbar-btn { font-size: 0.89rem; }
-      .screen-links a { margin: 0 2px; font-size: 0.95rem; padding: 4px 6px;}
+      .searchbar-form {
+        min-width: 0; 
+        width: 98%; 
+        height: 52px;         /* ★ 통통하게! 기존 36px→52px */
+      }
+      .searchbar-select, .searchbar-input, .searchbar-btn {
+        font-size: 1.03rem;
+      }
+      .searchbar-input {
+        padding: 0 8px;
+      }
+      .screen-links {
+        text-align: left;           /* 한 줄 가로 정렬로 변경 */
+        overflow-x: auto;           /* 가로 스크롤 가능하게 */
+        white-space: nowrap;        /* 줄바꿈 방지 */
+        padding-left: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .screen-links a {
+        margin: 0 2px;
+        font-size: 0.93rem;
+        padding: 3px 8px 3px 8px;
+        border-radius: 11px;
+      }
       #screen-frame { min-height: 450px; width: 98vw; border-radius: 6px;}
     }
+    /* 더 작은 화면에서 더 통통하게 하고 싶으면 아래도 추가 가능!
+    @media (max-width: 420px) {
+      .searchbar-form { height: 60px; }
+    }
+    */
   </style>
 </head>
 <body>
@@ -177,7 +208,6 @@
       e.target.classList.add('active');
       var frame = document.getElementById('screen-frame');
       frame.style.display = 'block';
-      // 항상 새로고침되게 쿼리스트링 추가!
       frame.src = url + (url.includes('?') ? '&v=' : '?v=') + Date.now();
       frame.setAttribute('scrolling', 'no');
       frame.style.overflow = 'hidden';
@@ -194,7 +224,6 @@
   </script>
 </body>
 </html>
-
 
    
   </script>
