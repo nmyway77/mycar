@@ -17,9 +17,8 @@
       text-align:center; /* 중앙정렬 핵심! */
     }
     .list-row {
-      /* float: left;  -- 이 부분 주석처리(삭제) */
-      display: inline-block;   /* 추가 */
-      vertical-align: top;     /* 추가 */
+      display: inline-block;   /* float 삭제 */
+      vertical-align: top;
       width: 150px;
       height: 97px;
       background: #fff;
@@ -59,8 +58,22 @@
     .img-item.magazine { height: 100%; }
     .clearfix::after { content: ""; display: table; clear: both; }
     @media (max-width:900px) {
-      .list-row { width:45vw; height:28vw; min-width:100px; min-height:60px;}
-      .list-row.magazine { width:31vw; height:44vw; min-width:65px; min-height:85px;}
+      .list-row {
+        width: 46%;   /* ⭐️ 항상 2개만 나오게! */
+        height:28vw;
+        min-width:90px;
+        min-height:60px;
+        margin: 0 2% 28px 0;
+      }
+      .list-row:nth-child(2n) { margin-right: 0; } /* 한줄 2개 맞춰주기 */
+      .list-row.magazine {
+        width: 46%;
+        height:44vw;
+        min-width:60px;
+        min-height:85px;
+        margin: 0 2% 28px 0;
+      }
+      .list-row.magazine:nth-child(2n) { margin-right: 0; }
     }
   </style>
 </head>
