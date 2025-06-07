@@ -1,4 +1,4 @@
-<html lang="ko">
+ <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <title>MYCAR - 검색포털 & 갤러리</title>
@@ -163,18 +163,18 @@
       }
     };
 
-    // 화면 메뉴 클릭시
+    // 화면 메뉴 클릭시 (수정! 항상 새로고침되게)
     function showScreen(e, url) {
       e.preventDefault();
       document.querySelectorAll('.screen-links a').forEach(a => a.classList.remove('active'));
       e.target.classList.add('active');
       var frame = document.getElementById('screen-frame');
       frame.style.display = 'block';
-      frame.src = url;
+      // 항상 새로고침되게 쿼리스트링 추가!
+      frame.src = url + (url.includes('?') ? '&v=' : '?v=') + Date.now();
       frame.setAttribute('scrolling', 'no');
       frame.style.overflow = 'hidden';
       frame.style.minHeight = '1100px';
-      // 삭제! frame.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     document.getElementById('screen-frame').onload = function() {
@@ -187,7 +187,6 @@
   </script>
 </body>
 </html>
-
 
 
    
