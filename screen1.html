@@ -1,9 +1,8 @@
  <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <base target="_blank22">
   <meta charset="UTF-8">
-  <title>MYWAY 원조 갤러리1~4 (데이터 only)</title>
+  <title>MYWAY 진짜 갤러리 (중앙배열/유동적/공백X)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { background: #fff; font-family: 'Segoe UI','맑은 고딕','NanumGothic',Arial,sans-serif; margin:0; padding:0;}
@@ -13,18 +12,19 @@
       color: #232356; text-align: center; letter-spacing: 0.5px; display: block; width: 100%;
     }
     .gallery-row {
-      width:100%; max-width:1080px; margin:0 auto;
-      text-align:center; /* 중앙정렬 핵심! */
+      width: 100%; max-width: 1080px; margin: 0 auto;
+      text-align: center;
     }
     .list-row {
-      display: inline-block;   /* float 삭제 */
+      display: inline-block;
       vertical-align: top;
       width: 150px;
       height: 97px;
       background: #fff;
-      margin: 0 18px 42px 0;
+      margin: 0 12px 36px 0;
       box-sizing: border-box;
       position: relative;
+      transition: width 0.2s, height 0.2s;
     }
     .list-row:last-child { margin-right: 0; }
     .imgframe {
@@ -52,49 +52,29 @@
     }
     .shadow-line { text-align: center; margin: 0; padding: 0; max-width: 100%; overflow: hidden !important; vertical-align: top;}
     .shadow-line img { display: block; margin: 0 auto; width: 95%; height: 20px; pointer-events: none; user-select: none; }
-    /* 갤러리4(매거진)는 세로형 */
     .list-row.magazine { width: 120px; height: 170px; }
     .img-wrap.magazine { height: 100%; }
     .img-item.magazine { height: 100%; }
-    .clearfix::after { content: ""; display: table; clear: both; }
-    @media (max-width:900px) {
-      .list-row {
-        width: 46%;   /* ⭐️ 항상 2개만 나오게! */
-        height:28vw;
-        min-width:90px;
-        min-height:60px;
-        margin: 0 2% 28px 0;
-      }
-      .list-row:nth-child(2n) { margin-right: 0; } /* 한줄 2개 맞춰주기 */
-      .list-row.magazine {
-        width: 46%;
-        height:44vw;
-        min-width:60px;
-        min-height:85px;
-        margin: 0 2% 28px 0;
-      }
-      .list-row.magazine:nth-child(2n) { margin-right: 0; }
+    @media (max-width: 1080px) {
+      .list-row { width: 23vw; height: 15vw; min-width: 110px; min-height: 60px; margin: 0 2vw 28px 0; }
+      .list-row.magazine { width: 16vw; height: 22vw; min-width: 80px; min-height: 100px; margin: 0 2vw 28px 0; }
+    }
+    @media (max-width: 700px) {
+      .list-row { width: 44vw; height: 28vw; min-width: 90px; min-height: 60px; margin: 0 2vw 22px 0; }
+      .list-row.magazine { width: 31vw; height: 44vw; min-width: 65px; min-height: 85px; margin: 0 2vw 22px 0; }
     }
   </style>
 </head>
 <body>
   <div class="dashboard">
-
-    <!-- 갤러리 1 -->
     <span class="gallery-label">갤러리 1</span>
-    <div class="gallery-row clearfix" id="gallery1"></div>
-
-    <!-- 갤러리 2 -->
+    <div class="gallery-row" id="gallery1"></div>
     <span class="gallery-label">갤러리 2</span>
-    <div class="gallery-row clearfix" id="gallery2"></div>
-
-    <!-- 갤러리 3 -->
+    <div class="gallery-row" id="gallery2"></div>
     <span class="gallery-label">갤러리 3</span>
-    <div class="gallery-row clearfix" id="gallery3"></div>
-
-    <!-- 갤러리 4(매거진) -->
+    <div class="gallery-row" id="gallery3"></div>
     <span class="gallery-label">갤러리 4 (매거진)</span>
-    <div class="gallery-row clearfix" id="gallery4"></div>
+    <div class="gallery-row" id="gallery4"></div>
   </div>
   <script>
     // 갤러리1~4 예시 데이터 (글자 없이 url, img만)
@@ -111,16 +91,13 @@
       { url: "https://www.google.com.au/webhp?hl=en&gl=au", img: "https://64.media.tumblr.com/142f0d5149882bc05ab0a71ac01e5da1/tumblr_inline_njsurwZm6N1r45nlo.jpg" }
     ];
     const gallery4Data = [
-      { url: "https://www.bing.com/", img: "https://64.media.tumblr.com/1aa90add760dfa7d745de3c2bd83ed57/tumblr_inline_qqnwi4R5op1r45nlo_500.jpg" },
-      { url: "https://duckduckgo.com/", img: "https://64.media.tumblr.com/1aa90add760dfa7d745de3c2bd83ed57/tumblr_inline_qqnwi4R5op1r45nlo_500.jpg" },
-      { url: "https://duckduckgo.com/", img: "https://64.media.tumblr.com/1aa90add760dfa7d745de3c2bd83ed57/tumblr_inline_qqnwi4R5op1r45nlo_500.jpg" },
-      { url: "https://duckduckgo.com/", img: "https://64.media.tumblr.com/1aa90add760dfa7d745de3c2bd83ed57/tumblr_inline_qqnwi4R5op1r45nlo_500.jpg" },
-      { url: "https://duckduckgo.com/", img: "https://64.media.tumblr.com/1aa90add760dfa7d745de3c2bd83ed57/tumblr_inline_qqnwi4R5op1r45nlo_500.jpg" }
+      { url: "https://www.bing.com/", img: "https://cdn.imweb.me/upload/S20220907061cc0ff95b51/a23c8e0b381fce9b9ee47ebaa7a2a979.jpg" },
+      { url: "https://www.bing.com/", img: "https://cdn.imweb.me/upload/S20220907061cc0ff95b51/a23c8e0b381fce9b9ee47ebaa7a2a979.jpg" },
+      { url: "https://www.bing.com/", img: "https://cdn.imweb.me/upload/S20220907061cc0ff95b51/a23c8e0b381fce9b9ee47ebaa7a2a979.jpg" },
+      { url: "https://www.bing.com/", img: "https://cdn.imweb.me/upload/S20220907061cc0ff95b51/a23c8e0b381fce9b9ee47ebaa7a2a979.jpg" }
     ];
     // 그림자 png (필요시 주소 교체)
     const shadowUrl = "https://64.media.tumblr.com/f5f06009df6584ebb5539cad61f73c63/tumblr_inline_qsghz3XZRQ1r45nlo_500.png";
-
-    // 갤러리 생성 함수
     function renderGallery(data, targetId, isMagazine = false) {
       const el = document.getElementById(targetId);
       el.innerHTML = data.map(item => `
@@ -137,7 +114,6 @@
           <div class="shadow-line">
             <img src="${shadowUrl}">
           </div>
-          <div class="clearfix"></div>
         </div>
       `).join('');
     }
