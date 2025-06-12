@@ -1,0 +1,362 @@
+ <!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>폴더별 이미지 갤러리</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {height:100%;margin:0;padding:0;box-sizing:border-box;}
+    body {
+      background: linear-gradient(135deg, #243B55 0%, #141E30 100%);
+      font-family: 'Montserrat','Apple SD Gothic Neo',sans-serif;
+      color: #222; min-height: 100vh; height: 100vh; overflow: hidden;
+    }
+    .container {
+      display: flex; height: 100vh; min-height:0; overflow: hidden;
+    }
+    .sidebar {
+      width: 235px; min-width:140px;
+      background:rgba(255,255,255,0.96);
+      border-right:1.5px solid #dde2ee;
+      display:flex; flex-direction:column;
+      padding:28px 16px 14px 18px;
+      z-index:2;
+      box-shadow:2px 0 12px 0 rgba(120,140,160,0.06);
+    }
+    .side-title {
+      font-size:1.12rem;font-weight:bold;margin-bottom:17px;letter-spacing:1px;color:#233056;
+    }
+    .folder-list {
+      flex:1; overflow-y:auto; margin-bottom:22px;
+      scrollbar-width: thin; scrollbar-color: transparent transparent;
+    }
+    .folder-list::-webkit-scrollbar {width:8px;background:transparent;}
+    .folder-list::-webkit-scrollbar-thumb {background:transparent;}
+    .folder-item {
+      padding:7px 10px; margin-bottom:6px;
+      border-radius: 9px;
+      background: none;
+      color: #222;
+      cursor:pointer; font-size:1rem;
+      display:flex; align-items:center; justify-content:space-between;
+      transition: background 0.13s;
+    }
+    .folder-item.active {
+      background:linear-gradient(90deg,#5566dd11 0%,#2f55aa14 100%);
+      font-weight:600; color:#35427a;
+    }
+    .folder-item .rename-btn,
+    .folder-item .delete-btn {
+      background:none;border:none;padding:0 3px;cursor:pointer;font-size:1.03em;color:#bbb;
+      transition: color 0.18s;
+    }
+    .folder-item .rename-btn:hover,
+    .folder-item .delete-btn:hover {color:#dd7777;}
+    .add-folder-btn {
+      width:100%;background:#f3f6fd;color:#35427a;font-weight:bold;
+      border:none;padding:11px 0;border-radius: 1em;font-size:1.01rem;cursor:pointer;margin-top:9px;
+      margin-bottom: 7px;transition:background 0.18s;
+    }
+    .add-folder-btn:hover {background:#dbe6fe;}
+
+    .sidebar .menu-btns button {
+      width:100%;background:linear-gradient(90deg,#5566dd 0%,#4433bb 100%);
+      color:#fff;font-size:1rem;font-weight:500;padding:10px 0;
+      margin-bottom:9px;border:none;border-radius:1.2em;
+      box-shadow:0 2px 12px 0 rgba(60,80,160,0.09);
+      transition: box-shadow 0.18s, background 0.18s; cursor:pointer;
+    }
+    .sidebar .menu-btns button:hover {
+      background:linear-gradient(90deg,#6677ff 0%,#5745cc 100%);
+      box-shadow:0 4px 18px 0 rgba(80,110,220,0.15);
+    }
+    .main-view {
+      flex:1 1 0%;min-width:0;padding:36px 32px 26px 32px;
+      display:flex;flex-direction:column;align-items:stretch;overflow-y:auto;height:100vh;
+      scrollbar-width:thin;scrollbar-color:transparent transparent;
+    }
+    .main-view::-webkit-scrollbar {width:10px;background:transparent;}
+    .main-view::-webkit-scrollbar-thumb {background:transparent;}
+    .main-header {
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;
+    }
+    .main-header .view-title {font-size:1.16rem;font-weight:bold;color:#233056;}
+    .main-header .add-img-btn {
+      background:#5566dd;color:#fff;border:none;border-radius:1.1em;
+      padding:9px 21px;font-size:1.01rem;cursor:pointer;font-weight:600;
+      box-shadow:0 2px 12px 0 rgba(60,80,160,0.07);transition:background 0.18s;
+    }
+    .main-header .add-img-btn:hover {background:#6677ff;}
+    .gallery {
+      display:grid;grid-template-columns:repeat(5,1fr);gap:21px;width:100%;
+    }
+    .gallery-card {
+      background:#fff;border-radius:15px;box-shadow:0 2px 10px 0 rgba(60,60,140,0.07);
+      display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+      padding:12px 8px 10px 8px;position:relative;
+    }
+    .gallery-card img {
+      display:block;max-width:100%;max-height:170px;
+      margin:0 auto 7px auto;border-radius:9px;
+      object-fit:contain;background:#f5f6fa;
+    }
+    .gallery-info {
+      width:100%;display:flex;flex-direction:column;align-items:flex-start;
+      margin-top:1px;
+    }
+    .gallery-title {
+      font-size:1.01rem;font-weight:600;color:#232356;margin-bottom:1px;word-break:break-all;max-width:100%;
+    }
+    .gallery-folder {
+      font-size:0.94rem;color:#bcc0d0;margin-bottom:2px;
+      margin-left:1px;
+    }
+    .delete-img-btn {
+      background:none;border:none;color:#c2c2cc;font-size:1.25em;cursor:pointer;
+      position:absolute;right:8px;bottom:8px;transition:color 0.16s;
+      line-height:1;
+    }
+    .delete-img-btn:hover {color:#e85a5a;}
+    /* Modal styles */
+    .modal-bg {
+      position:fixed;top:0;left:0;width:100vw;height:100vh;
+      background:rgba(22,30,45,0.46);z-index:200;
+      display:flex;justify-content:center;align-items:center;
+      transition:background 0.3s;
+    }
+    .modal-box {
+      background:#fff;border-radius:15px;padding:28px 25px 18px 25px;
+      box-shadow:0 8px 38px 0 rgba(40,44,60,0.13);min-width:270px;max-width:95vw;
+      color:#222;
+    }
+    .modal-box label {display:block;font-size:1rem;margin:8px 0 3px 1px;}
+    .modal-box input {
+      width:100%;padding:9px 8px;margin-bottom:13px;
+      border-radius:0.8em;border:1.3px solid #dde3f3;
+      background:#f5f7fd;color:#333;font-size:1rem;
+    }
+    .modal-box .modal-actions {text-align:right;margin-top:8px;}
+    .modal-box button {
+      padding:8px 15px;border:none;
+      border-radius:0.9em;font-size:1rem;font-weight:600;
+      margin-left:6px;cursor:pointer;background:#5566dd;color:#fff;
+    }
+    .modal-box button.cancel {background:#eee;color:#666;}
+    .modal-box button:active {opacity:0.86;}
+    @media (max-width:950px) {.container{flex-direction:column;}.sidebar{width:100%;border-right:none;border-bottom:2px solid #dde2ee;}}
+    @media (max-width:600px) {.main-view{padding:9px 2vw;}.gallery{grid-template-columns:1fr;gap:14px;}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 좌측 폴더영역 -->
+    <div class="sidebar">
+      <div class="side-title">폴더</div>
+      <div class="folder-list" id="folderList"></div>
+      <button class="add-folder-btn" onclick="openFolderModal()">+ 폴더 추가</button>
+      <div class="menu-btns" style="margin-top:17px;">
+        <button onclick="exportGallery()">내보내기</button>
+        <button onclick="importGallery()">가져오기</button>
+      </div>
+    </div>
+    <!-- 우측 메인/갤러리 -->
+    <div class="main-view">
+      <div class="main-header">
+        <span class="view-title" id="viewTitle">전체 이미지</span>
+        <button class="add-img-btn" onclick="openAddImgModal()">+ 사진 추가</button>
+      </div>
+      <div class="gallery" id="gallery"></div>
+    </div>
+  </div>
+  <!-- 폴더 추가/이름변경 모달 -->
+  <div class="modal-bg" id="folderModalBg" style="display:none">
+    <form class="modal-box" onsubmit="submitFolderForm(event)">
+      <label>폴더 이름</label>
+      <input type="text" id="folderNameInput" required maxlength="20" autocomplete="off">
+      <div class="modal-actions">
+        <button type="submit" id="folderModalSaveBtn">저장</button>
+        <button type="button" class="cancel" onclick="closeFolderModal()">취소</button>
+      </div>
+    </form>
+  </div>
+  <!-- 사진 추가 모달 -->
+  <div class="modal-bg" id="imgModalBg" style="display:none">
+    <form class="modal-box" onsubmit="submitImgForm(event)">
+      <label>사진 주소(URL)</label>
+      <input type="url" id="imgUrl" required placeholder="https://image...">
+      <label>제목(선택)</label>
+      <input type="text" id="imgTitle" maxlength="24" placeholder="예: 제주여행">
+      <div class="modal-actions">
+        <button type="submit">추가</button>
+        <button type="button" class="cancel" onclick="closeImgModal()">취소</button>
+      </div>
+    </form>
+  </div>
+  <input type="file" id="importFile" accept=".json" style="display:none;">
+  <script>
+    // ====== 데이터 구조 ======
+    let folders = [{id:'all', name:'전체', images:[]}]; // id, name, images[]
+    let activeFolderId = 'all';
+    let folderEditId = null; // rename용
+
+    // ====== 폴더 관련 ======
+    function renderFolders() {
+      const list = document.getElementById('folderList');
+      list.innerHTML = '';
+      folders.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'folder-item' + (f.id===activeFolderId ? ' active':'');
+        div.innerHTML = `
+          <span onclick="selectFolder('${f.id}')">${f.name}</span>
+          ${f.id!=='all' ? `
+            <button class="rename-btn" title="이름 변경" onclick="event.stopPropagation();openFolderModal('${f.id}')">✏️</button>
+            <button class="delete-btn" title="삭제" onclick="event.stopPropagation();deleteFolder('${f.id}')">🗑️</button>
+          `:''}
+        `;
+        div.onclick = ()=>selectFolder(f.id);
+        list.appendChild(div);
+      });
+    }
+    function selectFolder(id) {
+      activeFolderId = id;
+      renderFolders(); renderGallery();
+      document.getElementById('viewTitle').innerText = (id==='all') ? '전체 이미지' : `${folders.find(f=>f.id===id).name} 폴더`;
+    }
+    function openFolderModal(editId) {
+      folderEditId = editId||null;
+      document.getElementById('folderModalBg').style.display = 'flex';
+      document.getElementById('folderNameInput').value = editId?folders.find(f=>f.id===editId).name:'';
+      setTimeout(()=>document.getElementById('folderNameInput').focus(), 10);
+    }
+    function closeFolderModal() {document.getElementById('folderModalBg').style.display='none';}
+    function submitFolderForm(e){
+      e.preventDefault();
+      const name = document.getElementById('folderNameInput').value.trim();
+      if(!name) return;
+      if(folderEditId){ // rename
+        const f=folders.find(f=>f.id===folderEditId);
+        if(f)f.name=name;
+      }else{ // add
+        const newId = 'f'+Date.now();
+        folders.push({id:newId, name, images:[]});
+      }
+      closeFolderModal(); renderFolders(); saveGallery();
+    }
+    function deleteFolder(id){
+      if(!confirm('폴더와 포함된 사진이 모두 삭제됩니다.\n정말 삭제할까요?')) return;
+      folders = folders.filter(f=>f.id!==id);
+      if(activeFolderId===id) activeFolderId='all';
+      renderFolders(); renderGallery(); saveGallery();
+    }
+
+    // ====== 이미지(사진) 관련 ======
+    function renderGallery() {
+      const grid = document.getElementById('gallery');
+      grid.innerHTML = '';
+      let images = [];
+      if(activeFolderId==='all'){
+        folders.forEach(f=>{if(f.id!=='all')images=images.concat(f.images.map(img=>({...img, folder:f.name, folderId:f.id})));});
+      }else{
+        const folder=folders.find(f=>f.id===activeFolderId);
+        if(folder) images = folder.images.map(img=>({...img, folder:folder.name, folderId:folder.id}));
+      }
+      images.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'gallery-card';
+        card.innerHTML = `
+          <img src="${item.url}" alt="${item.title||''}" onerror="this.src='https://dummyimage.com/200x170/eee/999?text=NO+IMAGE';">
+          <div class="gallery-info">
+            <div class="gallery-title">${item.title?item.title:''}</div>
+            <div class="gallery-folder">${item.folder||''}</div>
+          </div>
+          <button class="delete-img-btn" title="삭제" onclick="deleteImage('${item.folderId}',${item.idx!=undefined?item.idx:idx})">🗑️</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+    function openAddImgModal() {
+      if(activeFolderId==='all'){
+        alert('사진을 추가할 폴더를 먼저 선택하세요!');
+        return;
+      }
+      document.getElementById('imgModalBg').style.display = 'flex';
+      document.getElementById('imgUrl').value = '';
+      document.getElementById('imgTitle').value = '';
+      setTimeout(()=>document.getElementById('imgUrl').focus(), 10);
+    }
+    function closeImgModal() {document.getElementById('imgModalBg').style.display='none';}
+    function submitImgForm(e){
+      e.preventDefault();
+      const url = document.getElementById('imgUrl').value.trim();
+      const title = document.getElementById('imgTitle').value.trim();
+      const folder=folders.find(f=>f.id===activeFolderId);
+      if(folder) folder.images.push({url,title});
+      closeImgModal(); renderGallery(); saveGallery();
+    }
+    function deleteImage(folderId, idx){
+      const folder=folders.find(f=>f.id===folderId);
+      if(!folder)return;
+      if(!confirm('이 사진을 삭제할까요?'))return;
+      folder.images.splice(idx,1);
+      renderGallery(); saveGallery();
+    }
+
+    // ====== 내보내기/가져오기/로컬저장 ======
+    function exportGallery() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(folders, null, 2));
+      const dlAnchorElem = document.createElement('a');
+      dlAnchorElem.setAttribute("href",dataStr);
+      dlAnchorElem.setAttribute("download","gallery.json");
+      document.body.appendChild(dlAnchorElem);
+      dlAnchorElem.click();
+      document.body.removeChild(dlAnchorElem);
+    }
+    function importGallery() {
+      document.getElementById('importFile').click();
+    }
+    document.getElementById('importFile').addEventListener('change', function(e){
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const imported = JSON.parse(ev.target.result);
+          if(Array.isArray(imported) && imported[0] && imported[0].id==='all'){
+            folders = imported;
+            activeFolderId='all';
+            saveGallery();
+            renderFolders();
+            renderGallery();
+          } else alert("잘못된 파일 형식입니다.");
+        } catch(err) {alert("파일 읽기 오류");}
+      }
+      reader.readAsText(file);
+      e.target.value = "";
+    });
+
+    function saveGallery() {localStorage.setItem('foldersGallery',JSON.stringify(folders));}
+    function loadGallery() {
+      const data = localStorage.getItem('foldersGallery');
+      if(data) folders = JSON.parse(data);
+      if(!folders[0]||folders[0].id!=='all')folders=[{id:'all',name:'전체',images:[]}];
+      renderFolders(); renderGallery();
+    }
+
+    // ESC, 모달 외부 클릭 닫기 지원
+    document.addEventListener('keydown',(e)=>{
+      if(e.key==="Escape") {
+        closeImgModal(); closeFolderModal();
+      }
+    });
+    document.getElementById('folderModalBg').addEventListener('click',(e)=>{
+      if(e.target===e.currentTarget) closeFolderModal();
+    });
+    document.getElementById('imgModalBg').addEventListener('click',(e)=>{
+      if(e.target===e.currentTarget) closeImgModal();
+    });
+
+    // 페이지 시작시
+    loadGallery();
+  </script>
+</body>
+</html>
