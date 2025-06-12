@@ -1,3 +1,4 @@
+ 
  <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,30 +17,14 @@
     .screen-links { text-align: center; margin-top: 3px; margin-bottom: 0; }
     .screen-links a { display: inline-block; margin: 0 3px; font-size: 0.92rem; color: #232356; font-weight: bold; text-decoration: none; cursor: pointer; transition: color 0.14s; padding: 3px 12px 4px 12px; border-radius: 14px; letter-spacing: 0.02em; line-height: 1.58; white-space: nowrap; }
     .screen-links a:hover, .screen-links a.active { color: #fff; background: #32307c; text-decoration: none;}
-    #main-frame { 
-      position: fixed; 
-      left: 0; 
-      top: 110px; 
-      width: 100vw; 
-      height: calc(100vh - 95px);  /* 110 → 95로 수정: 하단부 살짝 더 크게 */
-      border: none; 
-      margin: 0; 
-      background: #f5f7fa; 
-      z-index: 10; 
-      transition: none; 
-      border-radius: 0; 
-      display: block; 
-    }
+    #main-frame { position: fixed; left: 0; top: 110px; width: 100vw; height: calc(100vh - 110px); border: none; margin: 0; background: #f5f7fa; z-index: 10; transition: none; border-radius: 0; display: block; }
     @media (max-width: 700px) {
       .searchbar-form { min-width: 0; width: 98%; height: 52px;}
       .searchbar-select, .searchbar-input, .searchbar-btn { font-size: 1.03rem;}
       .searchbar-input { padding: 0 8px; }
       .screen-links { text-align: left; overflow-x: auto; white-space: nowrap; padding-left: 8px; -webkit-overflow-scrolling: touch;}
       .screen-links a { margin: 0 2px; font-size: 0.93rem; padding: 3px 8px 3px 8px; border-radius: 11px;}
-      #main-frame { 
-        top: 100px; 
-        height: calc(100vh - 80px); /* 100 → 80으로 수정: 모바일도 살짝 더 크게 */
-      }
+      #main-frame { top: 100px; height: calc(100vh - 100px);}
     }
   </style>
 </head>
@@ -59,7 +44,7 @@
     </form>
   </div>
   <div class="screen-links" id="parent-links">
-    <a href="#" onclick="showScreenParent(event, 'screen1.html')">화면 1</a>
+    <a href="#" onclick="showScreenParent(event, 'newpaperiframe2.html')">화면 1</a>
     <a href="#" onclick="showScreenParent(event, 'screen2.html')">화면 2</a>
     <a href="#" onclick="showScreenParent(event, 'screen3.html')">화면 3</a>
     <a href="#" onclick="showScreenParent(event, 'screen4.html')">화면 4</a>
@@ -67,7 +52,7 @@
     <a href="#" onclick="showScreenParent(event, 'screen6.html')">화면 6</a>
     <a href="#" onclick="showScreenParent(event, 'screen7.html')">화면 7</a>
   </div>
-  <iframe id="main-frame" src="screen1.html" allowfullscreen></iframe>
+  <iframe id="main-frame" src="newpaperiframe2.html" allowfullscreen></iframe>
   <script>
     // 검색엔진 배열 (부모용)
     var snarkEnginesParent = [
