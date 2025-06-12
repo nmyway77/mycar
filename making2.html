@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>폴더별 이미지 갤러리</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
+  <style>
 html, body {height:100%;margin:0;padding:0;box-sizing:border-box;}
 body {
   background: linear-gradient(135deg, #243B55 0%, #141E30 100%);
@@ -92,7 +92,7 @@ body {
 .gallery {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 16px;  /* 이미지 사이 공간만 남김 */
+  gap: 16px;
 }
 .gallery-card {
   background: none;
@@ -106,6 +106,7 @@ body {
   align-items: stretch;
   position: relative;
 }
+.gallery-card a { display:block;}
 .gallery-card img {
   width: 100%;
   height: auto;
@@ -115,6 +116,7 @@ body {
   border-radius: 0;
   box-shadow: none;
   margin: 0;
+  transition: box-shadow 0.13s;
 }
 .gallery-info {
   padding: 3px 2px 0 2px;
@@ -162,10 +164,7 @@ body {
 .modal-box button:active {opacity:0.86;}
 @media (max-width:950px) {.container{flex-direction:column;}.sidebar{width:100%;border-right:none;border-bottom:2px solid #dde2ee;}}
 @media (max-width:600px) {.main-view{padding:9px 2vw;}.gallery{grid-template-columns:1fr;gap:14px;}}
-</style>
-
-
- 
+  </style>
 </head>
 <body>
   <div class="container">
@@ -199,11 +198,13 @@ body {
       </div>
     </form>
   </div>
-  <!-- 사진 추가 모달 -->
+  <!-- 사진 추가 모달 (사진 주소+링크+제목) -->
   <div class="modal-bg" id="imgModalBg" style="display:none">
     <form class="modal-box" onsubmit="submitImgForm(event)">
       <label>사진 주소(URL)</label>
       <input type="url" id="imgUrl" required placeholder="https://image...">
+      <label>링크(URL, 선택)</label>
+      <input type="url" id="imgLink" placeholder="https://naver.com">
       <label>제목(선택)</label>
       <input type="text" id="imgTitle" maxlength="24" placeholder="예: 제주여행">
       <div class="modal-actions">
@@ -275,7 +276,10 @@ body {
       grid.innerHTML = '';
       let images = [];
       if(activeFolderId==='all'){
-        folders.forEach(f=>{if(f.id!=='all')images=images.concat(f.images.map(img=>({...img, folder:f.name, folderId:f.id})));});
+        folders.forEach(f=>{
+          if(f.id!=='all')
+            images=images.concat(f.images.map(img=>({...img, folder:f.name, folderId:f.id})));
+        });
       }else{
         const folder=folders.find(f=>f.id===activeFolderId);
         if(folder) images = folder.images.map(img=>({...img, folder:folder.name, folderId:folder.id}));
@@ -283,8 +287,12 @@ body {
       images.forEach((item, idx) => {
         const card = document.createElement('div');
         card.className = 'gallery-card';
+        let imgTag = `<img src="${item.url}" alt="${item.title||''}" onerror="this.src='https://dummyimage.com/200x170/eee/999?text=NO+IMAGE';">`;
+        if(item.link){
+          imgTag = `<a href="${item.link}" target="_blank" style="display:block">${imgTag}</a>`;
+        }
         card.innerHTML = `
-          <img src="${item.url}" alt="${item.title||''}" onerror="this.src='https://dummyimage.com/200x170/eee/999?text=NO+IMAGE';">
+          ${imgTag}
           <div class="gallery-info">
             <div class="gallery-title">${item.title?item.title:''}</div>
             <div class="gallery-folder">${item.folder||''}</div>
@@ -302,6 +310,7 @@ body {
       document.getElementById('imgModalBg').style.display = 'flex';
       document.getElementById('imgUrl').value = '';
       document.getElementById('imgTitle').value = '';
+      document.getElementById('imgLink').value = '';
       setTimeout(()=>document.getElementById('imgUrl').focus(), 10);
     }
     function closeImgModal() {document.getElementById('imgModalBg').style.display='none';}
@@ -309,8 +318,9 @@ body {
       e.preventDefault();
       const url = document.getElementById('imgUrl').value.trim();
       const title = document.getElementById('imgTitle').value.trim();
+      const link = document.getElementById('imgLink').value.trim();
       const folder=folders.find(f=>f.id===activeFolderId);
-      if(folder) folder.images.push({url,title});
+      if(folder) folder.images.push({url,title,link});
       closeImgModal(); renderGallery(); saveGallery();
     }
     function deleteImage(folderId, idx){
