@@ -1,13 +1,10 @@
-<!DOCTYPE html>
+
+ <!DOCTYPE html>
 <html lang="ko">
 <head>
- 
-  <base target="_blank76">
- <title>MYcar.KR: 멀티검색, 나만의 디스플레이, 즐겨찾기</title>
-
-
-
- 
+  <meta charset="UTF-8">
+  <title>MYCAR.KR: 멀티검색, 나만의 디스플레이, 즐겨찾기</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: 'Segoe UI', '맑은 고딕', Arial, sans-serif; background: #fff; margin: 0; padding: 0;}
     .searchbar-wrap { display: flex; justify-content: center; align-items: center; margin-top: 18px; margin-bottom: 5px;}
@@ -17,71 +14,19 @@
     .searchbar-input { flex: 1; border: none; padding: 0 13px; font-size: 1.02rem; background: #fff; color: #232356; outline: none; height: 100%;}
     .searchbar-btn { background: #32307c; color: #fff; border: none; padding: 0 24px; min-width: 86px; height: 100%; font-size: 1.08rem; font-weight: bold; cursor: pointer; border-radius: 0 34px 34px 0; letter-spacing: 0.1px; transition: background 0.15s;}
     .searchbar-btn:hover { background: #22205c; }
-    .screen-links { 
-      text-align: center; 
-      margin-top: 3px; 
-      margin-bottom: 30px; 
-    }
-    .screen-links a { 
-      display: inline-block; 
-      margin: 0 3px; 
-      font-size: 0.92rem; 
-      color: #232356; 
-      font-weight: bold; 
-      text-decoration: none; 
-      cursor: pointer; 
-      transition: color 0.14s; 
-      padding: 3px 12px 4px 12px; 
-      border-radius: 14px; 
-      letter-spacing: 0.02em; 
-      line-height: 1.58; 
-      white-space: nowrap; 
-    }
+    .screen-links { text-align: center; margin-top: 3px; margin-bottom: 30px; }
+    .screen-links a { display: inline-block; margin: 0 3px; font-size: 0.92rem; color: #232356; font-weight: bold; text-decoration: none; cursor: pointer; transition: color 0.14s; padding: 3px 12px 4px 12px; border-radius: 14px; letter-spacing: 0.02em; line-height: 1.58; white-space: nowrap; }
     .screen-links a:hover, .screen-links a.active { color: #fff; background: #32307c; text-decoration: none;}
-    #main-frame { 
-      position: fixed; 
-      left: 0; 
-      top: 135px; 
-      width: 100vw; 
-      height: calc(100vh - 120px); 
-      border: none; 
-      margin: 0; 
-      background: #f5f7fa; 
-      z-index: 10; 
-      transition: none; 
-      border-radius: 0; 
-      display: block; 
-    }
-    /* ---------------------- */
-    /* 모바일에서 네비바와 iframe 여유 공간 크게! */
-    @media (max-width: 700px) {
+ 
+   #main-frame { position: fixed; left: 0; top: 135px; width: 100vw; height: calc(100vh - 120px); border: none; margin: 0; background: #f5f7fa; z-index: 10; transition: none; border-radius: 0; display: block; }
+   
+   @media (max-width: 700px) {
       .searchbar-form { min-width: 0; width: 98%; height: 52px;}
       .searchbar-select, .searchbar-input, .searchbar-btn { font-size: 1.03rem;}
       .searchbar-input { padding: 0 8px; }
-      .screen-links { 
-        text-align: left; 
-        overflow-x: auto; 
-        white-space: nowrap; 
-        padding-left: 8px; 
-        -webkit-overflow-scrolling: touch;
-        height: 38px !important;        /* ★ 세로 높이 확실히 */
-        min-height: 38px !important;
-        display: flex; align-items: center;
-        margin-top: 12px !important;   /* ★ 위 여백 */
-        margin-bottom: 16px;
-      }
-      .screen-links a { 
-        margin: 0 2px; 
-        font-size: 1.05rem; 
-        padding: 0 10px 0 10px;    /* 세로 padding 제거! */
-        border-radius: 11px;
-        line-height: 38px !important;
-        height: 38px !important;
-      }
-      #main-frame { 
-        top: 120px;                   /* ★ iframe 아래로 충분히 */
-        height: calc(100vh - 120px);
-      }
+      .screen-links { text-align: left; overflow-x: auto; white-space: nowrap; padding-left: 8px; -webkit-overflow-scrolling: touch;}
+      .screen-links a { margin: 0 2px; font-size: 0.93rem; padding: 3px 8px 3px 8px; border-radius: 11px;}
+      #main-frame { top: 100px; height: calc(100vh - 100px);}
     }
   </style>
 </head>
